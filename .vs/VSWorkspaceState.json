@@ -1,0 +1,10 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\src",
+    "\\src\\app",
+    "\\src\\app\\geo-location"
+  ],
+  "SelectedNode": "\\src\\app\\geo-location\\geo-location.component.html",
+  "PreviewInSolutionExplorer": false
+}
