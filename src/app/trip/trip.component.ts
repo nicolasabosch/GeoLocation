@@ -1,12 +1,13 @@
-import { Component, OnInit, Input, AfterViewChecked, inject, ChangeDetectorRef } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { CurrencyPipe, DatePipe, TitleCasePipe, JsonPipe, formatDate, NgFor, NgIf, NgStyle } from '@angular/common';
-import { FormsModule, NgModel} from '@angular/forms';
-import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
+import { Component, OnInit, Input, AfterViewChecked, inject, ChangeDetectorRef, Injectable } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CurrencyPipe, DatePipe, TitleCasePipe, JsonPipe, formatDate, NgFor, NgIf, NgStyle, PlatformLocation } from '@angular/common';
+import { FormsModule, NgModel } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { HttpClient, HttpErrorResponse, HttpEvent, HttpEventType, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { SafePipe } from './../common';
 import { GeolocationService } from '@ng-web-apis/geolocation';
 import { catchError, Observable, take, tap, throwError } from 'rxjs';
+import { TripService } from '../TripService/trip.service';
 
 @Component({
   selector: 'app-trip',
@@ -19,10 +20,10 @@ import { catchError, Observable, take, tap, throwError } from 'rxjs';
 export class TripComponent implements OnInit, AfterViewChecked {
   id: string
   baseUrl: string = "https://9q08dmvx-5004.brs.devtunnels.ms/";
-  record: any={}
+  record: any = {}
   selectedID: any;
-  r:any;
-  selectedRow:any;
+  r: any;
+  selectedRow: any;
   Latitud: any;
   Longitud: any;
   url: string = "";
@@ -32,46 +33,53 @@ export class TripComponent implements OnInit, AfterViewChecked {
   error: GeolocationPositionError | null = null;
   fileID: string | null = null;
 
-  constructor(private route: ActivatedRoute, public http: HttpClient, readonly geolocation$: GeolocationService,  private readonly changeDetectorRef: ChangeDetectorRef, private readonly domSanitizer: DomSanitizer,
-  ) { 
+  constructor(private route: ActivatedRoute,
+    public http: HttpClient,
+    readonly geolocation$: GeolocationService,
+    private readonly changeDetectorRef: ChangeDetectorRef,
+    private readonly domSanitizer: DomSanitizer,
+    public tripService: TripService,
+    public router: Router,
+    public location: PlatformLocation
+
+  ) {
 
     //this.geolocation=geolocation
     //geolocation.subscribe(position => this.getLocation(position))
   }
   ngAfterViewChecked(): void {
-    }
+  }
 
   private getUrl(position: GeolocationPosition): SafeResourceUrl {
     const longitude = position.coords.longitude;
     const latitude = position.coords.latitude;
 
     return this.domSanitizer.bypassSecurityTrustResourceUrl(
-        `//www.openstreetmap.org/export/embed.html?bbox=${longitude -
-            0.005},${latitude - 0.005},${longitude + 0.005},${latitude +
-            0.005}&marker=${position.coords.latitude},${
-            position.coords.longitude
-        }&layer=mapnik`,
+      `//www.openstreetmap.org/export/embed.html?bbox=${longitude -
+      0.005},${latitude - 0.005},${longitude + 0.005},${latitude +
+      0.005}&marker=${position.coords.latitude},${position.coords.longitude
+      }&layer=mapnik`,
     );
-}
+  }
 
   viewLocation(): void {
-    
+
     this.geolocation$.pipe(take(1)).subscribe(
-        position => {
-          console.log(position)
-            this.currentPositionUrl = this.getUrl(position);
-            this.changeDetectorRef.markForCheck();
-            this.record.longitude = position.coords.longitude;
-            this.record.latitude = position.coords.latitude;
-            
-            
-        },
-        error => {
-            this.error = error;
-            this.changeDetectorRef.markForCheck();
-        },
+      position => {
+        console.log(position)
+        this.currentPositionUrl = this.getUrl(position);
+        this.changeDetectorRef.markForCheck();
+        this.record.longitude = position.coords.longitude;
+        this.record.latitude = position.coords.latitude;
+
+
+      },
+      error => {
+        this.error = error;
+        this.changeDetectorRef.markForCheck();
+      },
     );
-}
+  }
 
 
   getLocation(position: any): void {
@@ -84,28 +92,40 @@ export class TripComponent implements OnInit, AfterViewChecked {
     //console.log(Latitud)
     this.record = position;
     this.record.url = "https://www.openstreetmap.org/export/embed.html?bbox=" + this.record.coords.longitude + "%2C" + this.record.coords.latitude + "&amp;layer=mapnik"
-    
+
 
   }
 
   ngOnInit() {
     this.id = this.route.snapshot.paramMap.get('id');
-    console.log(this.id);
+    // console.log(this.id);
+    if (this.tripService.record && this.tripService.record.TripID==this.id) {
+      this.record = this.tripService.record
+    }
+    else{
     this.http.get(this.baseUrl + "Api/Trip/" + this.id)
       .subscribe(data => { this.record = data }, function (a) {
         console.log(a);
         alert("error");
       })
-    
+    }
   }
 
-  viewRecord(r:any): void {
-    this.selectedRow=r
-    
+  viewRecord(r: any): void {
+    //this.selectedRow=r
+    this.tripService.selectedRow = r
+    this.tripService.record = this.record
+    console.log(r)
+    this.router.navigate([this.location.pathname, r.SaleDeliveryID], {
+      relativeTo: this.route,
+    });
+
 
   }
   backToRecordList() {
-    this.selectedRow=null
+    //this.selectedRow=null
+    this.tripService.selectedRow = null
+    this.record = this.tripService.record
   }
 
   public handleError<T>(operation = 'operation', result?: T) {
@@ -118,7 +138,7 @@ export class TripComponent implements OnInit, AfterViewChecked {
   }
 
   public async uploadFile(event: any, model: any, fieldName: string) {
-    
+
     let target: HTMLInputElement = <HTMLInputElement>event.target;
     let files: FileList = target.files;
 
@@ -134,7 +154,7 @@ export class TripComponent implements OnInit, AfterViewChecked {
       canva.height = img.height * ratio
       ctx.drawImage(img, 0, 0, img.width * ratio, img.height * ratio);
     };
-    
+
 
     (await this.uploadFileToURL(files[0])).subscribe(
       (res: any) => {
@@ -145,34 +165,34 @@ export class TripComponent implements OnInit, AfterViewChecked {
           model.FileName = res.body.FileName;
           model['Preview' + fieldName] = res.body.Preview;
         }
-        
+
       },
       (err: any) => console.log(err)
     );
   }
 
-  
-  public async uploadTripFile(){
+
+  public async uploadTripFile() {
     let uploadURL = this.baseUrl + "api/TripFile";
     const headers = new HttpHeaders({ 'ngsw-bypass': '' });
     const formData: FormData = new FormData();
     formData.append("TripID", this.selectedRow.TripID)
     formData.append("FileID", this.fileID)
     formData.append("SaleDeliveryID", this.selectedRow.SaleDeliveryID)
-    formData.append("SourceID",this.selectedRow.SourceID)
+    formData.append("SourceID", this.selectedRow.SourceID)
     //const selectedData=this.http.get(this.baseUrl + "api/File")
     //formData.append("FileID",this.record.)
-    const tripUpload= this.http.post<any>(uploadURL, formData,
+    const tripUpload = this.http.post<any>(uploadURL, formData,
       {
         reportProgress: true,
         observe: 'events',
         headers: headers
       })
-      tripUpload.subscribe()
+    tripUpload.subscribe()
     return tripUpload
 
   }
-  
+
   public async uploadFileToURL(file: any) {
     //alert("uploadfileurl")
     let uploadURL = this.baseUrl + "api/File";
@@ -182,10 +202,9 @@ export class TripComponent implements OnInit, AfterViewChecked {
 
     formData.append("latitude", this.record.latitude)
     formData.append("longitude", this.record.longitude)
-    
+
     var resizedFile: any = await this.ImageResizeAsync(file)
     formData.append('file', resizedFile, file.name);
-    console.log("a")
     return this.http.post<any>(uploadURL, formData,
       {
         reportProgress: true,
@@ -195,11 +214,11 @@ export class TripComponent implements OnInit, AfterViewChecked {
         //tap(_ => { /* console.log(this.url + " OK") */ }),
         tap(event => {
           this.uploadTripFile()
-       
-      }
-  ))
 
-}
+        }
+        ))
+
+  }
 
   async ImageResizeAsync(file: any) {
     var size = 1000

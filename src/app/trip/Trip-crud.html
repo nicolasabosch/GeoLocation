@@ -1,13 +1,13 @@
 <div class="container">
     <div *ngIf="!this.selectedRow">
         <div class="row">
-            <div class="col-3 form-group">
+            <div class="col-3 col-sm-1 form-group">
                 <label for="txtTripID" tlt>
                     Viaje N°
                 </label>
                 <div class="form-control disabled right">{{record.TripID}}</div>
             </div>
-            <div class="col-4 form-group">
+            <div class="col-4 col-sm-2 form-group">
                 <label for="txtTripDate" tlt>
                     Fecha
                 </label>
@@ -19,7 +19,7 @@
                 </label>
                 <div class="form-control disabled">{{record.WarehouseGroupID}}</div>
             </div>
-            <div class="col-sm-1 form-group">
+            <div class="col-sm-2 form-group">
                 <label for="txtTripStatusName" tlt>
                     Estado
                 </label>
@@ -43,7 +43,7 @@
                 </label>
                 <div class="form-control disabled">{{record.FreightName}}</div>
             </div>
-            <div class="col-sm-1 form-group">
+            <div class="col-sm-2 form-group">
                 <label for="txtVehicleTypeName" tlt>
                     Tipo Vehiculo
                 </label>
@@ -218,7 +218,7 @@
         </div>
     </div>
     <div *ngIf="this.selectedRow">
-        <pre>{{this.selectedRow | json}}</pre>
+        <!-- <pre>{{this.selectedRow | json}}</pre> -->
 
         <button type="button" class="btn btn-primary" style="float: right;" (click)="backToRecordList()">Back</button>
         <div class="row">
