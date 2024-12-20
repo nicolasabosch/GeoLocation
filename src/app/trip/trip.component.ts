@@ -1,18 +1,20 @@
 import { Component, OnInit, Input, AfterViewChecked, inject, ChangeDetectorRef, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CurrencyPipe, DatePipe, TitleCasePipe, JsonPipe, formatDate, NgFor, NgIf, NgStyle, PlatformLocation } from '@angular/common';
+import { CurrencyPipe, DatePipe, TitleCasePipe, JsonPipe, formatDate, NgFor, NgIf, NgStyle, PlatformLocation, DecimalPipe } from '@angular/common';
 import { FormsModule, NgModel } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { HttpClient, HttpErrorResponse, HttpEvent, HttpEventType, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { SafePipe } from './../common';
 import { GeolocationService } from '@ng-web-apis/geolocation';
-import { catchError, Observable, take, tap, throwError } from 'rxjs';
+import { catchError, Observable, pipe, take, tap, throwError } from 'rxjs';
 import { TripService } from '../TripService/trip.service';
+import { FilterPipe } from "../pipes/filter.pipe";
+import { OrderByPipe } from "../pipes/order-by.pipe";
 
 @Component({
   selector: 'app-trip',
   standalone: true,
-  imports: [JsonPipe, FormsModule, DatePipe, NgFor, NgIf, NgStyle, CurrencyPipe, SafePipe],
+  imports: [JsonPipe, FormsModule, DatePipe, NgFor, NgIf, NgStyle, CurrencyPipe, SafePipe, FilterPipe, OrderByPipe, DecimalPipe],
   templateUrl: './Trip-crud.html',
   styleUrl: './trip.component.css'
 

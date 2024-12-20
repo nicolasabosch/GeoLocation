@@ -37,10 +37,7 @@ export class FilterPipe implements PipeTransform {
     }
 
     let result = value;
-    if (filterName[0] ==="ProjectTypeID")
-    {
-        console.log(filterValue);
-    }
+    
 
     if (filterValue[0]=== undefined || filterValue[0]===null)
     {

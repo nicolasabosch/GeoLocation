@@ -80,10 +80,10 @@ export class TripService {
   }
 
 
-  getUrl(position: GeolocationPosition): SafeResourceUrl {
+  getUrl(position: any): SafeResourceUrl {
     const longitude = position.coords.longitude;
     const latitude = position.coords.latitude;
-
+    console.log(position);
     return this.domSanitizer.bypassSecurityTrustResourceUrl(
       `//www.openstreetmap.org/export/embed.html?bbox=${longitude -
       0.005},${latitude - 0.005},${longitude + 0.005},${latitude +

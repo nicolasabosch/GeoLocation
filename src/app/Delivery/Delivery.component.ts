@@ -9,12 +9,13 @@ import { GeolocationService } from '@ng-web-apis/geolocation';
 import { catchError, Observable, take, tap, throwError } from 'rxjs';
 import { TripService } from '../TripService/trip.service';
 import { FilterPipe } from '../pipes/filter.pipe';
+import { OrderByPipe } from '../pipes/order-by.pipe';
 
 
 @Component({
   selector: 'app-Delivery',
   standalone: true,
-  imports: [JsonPipe, FormsModule, DatePipe, NgFor, NgIf, NgStyle, CurrencyPipe, SafePipe, FilterPipe, CommonModule],
+  imports: [JsonPipe, FormsModule, DatePipe, NgFor, NgIf, NgStyle, CurrencyPipe, SafePipe, FilterPipe, CommonModule, OrderByPipe],
   templateUrl: './Delivery.html',
   styleUrl: './Delivery.component.css'
 
@@ -24,7 +25,7 @@ export class DeliveryComponent implements AfterContentInit {
   selectedRow: any;
   record: any = {}
   currentPositionUrl: SafeResourceUrl | null = null;
-  mapVisible: boolean = true;
+  mapVisible: boolean = false;
   pictureVisible: boolean = false;
   constructor(
     private readonly changeDetectorRef: ChangeDetectorRef,
@@ -33,10 +34,28 @@ export class DeliveryComponent implements AfterContentInit {
 
   ) { }
 
+viewPosition(r:any):void{
+  
+  var position:any= {};
+  position = {
+    coords: {
+      latitude: parseFloat(r.Latitude),
+      longitude: parseFloat(r.Longitude)
+    }
+  }
+  console.log(position)
+  this.mapVisible = true;
+  this.currentPositionUrl = this.tripService.getUrl(position);
+  this.changeDetectorRef.markForCheck();
+}
+
+  closeMap(): void {
+    this.mapVisible = false;
+  }
+
   setLocation(EventID: string): void {
     var tripEvent: any = {};
 
-   
     tripEvent.TripID = this.selectedRow.TripID
     tripEvent.SaleDeliveryID = this.selectedRow.SaleDeliveryID
     tripEvent.SourceID = this.selectedRow.SourceID
@@ -76,7 +95,6 @@ export class DeliveryComponent implements AfterContentInit {
 
   public async takePicture(event: any, model: any, fieldName: string) {
 
-    this.pictureVisible = true;
     let target: HTMLInputElement = <HTMLInputElement>event.target;
     let files: FileList = target.files;
 
@@ -86,9 +104,7 @@ export class DeliveryComponent implements AfterContentInit {
     var canva = (<HTMLCanvasElement>document.getElementById('canvaid'));
     //ctx.scale(0.3,0.3);
 
-    setTimeout(() => {
-      this.pictureVisible = false;
-    }, 3000);
+    
     img.onload = function () {
       var size = 1000
       const ratio = Math.min(size / img.width, size / img.height)

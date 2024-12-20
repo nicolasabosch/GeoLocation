@@ -31,7 +31,7 @@
                 </label>
                 <div class="form-control disabled">{{record.TripTypeName}}</div>
             </div>
-            <div class="col-sm-1 form-group">
+            <div class="col-sm-1 form-group" *ngif="record.TripTypeID =='Customer'">
                 <label for="txtDeliveryZoneName" tlt>
                     Zona
                 </label>
@@ -73,11 +73,16 @@
                         <th tlt>Pedido</th>
                         <th tlt>Vendedor</th>
                         <th tlt>Cliente</th>
-                        <th tlt>Dirección</th>
-                        <th tlt>Zona</th>
-                        <th tlt>Instrucciones de entrega</th>
-                        <th tlt>Comentarios logistica</th>
+                        <th *ngif="record.TripTypeID =='Customer'" tlt="Dirección"></th>
+                        <th *ngif="record.TripTypeID =='Customer'" tlt="Zona"></th>
+                        <th *ngif="record.TripTypeID =='Customer'" tlt="Instrucciones de Entrega"></th>
+                        <th tlt *ngif="action==='Finishing' || record.TripStatusID==='Completed'">Comentarios logistica</th>
                         <th tlt>Resultado viaje</th>
+                        <th tlt>Comentarios Logistica</th>
+                        <th tlt>Bultos</th>
+                        <th tlt>Mts</th>
+                        <th tlt>Kgs</th>
+                        <th tlt>Pzs</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -95,30 +100,27 @@
                                 <strong>{{r.CarrierName}}</strong><br />
                                 {{r.CarrierAddress}} {{r.CarrierPhone}}
                             </div>
+                            <div></div>
+
                         </td>
                         <td *ngIf="record.TripTypeID =='Customer'"
                             [ngStyle]="(r.DeliveryZoneID !== record.DeliveryZoneID  && {'color':'white','background-color':'red','font-weight':'bold'})">
                             {{r.DeliveryZoneName}} </td>
                         <td *ngIf="record.TripTypeID =='Customer'">{{r.DeliveryInstruction}} </td>
-                        <td><textarea disabled [(ngModel)]="r.SaleDeliveryDeliveryRemarks"
-                                [name]="'SaleDeliveryDeliveryRemarks' + index" class="form-control"></textarea></td>
+                        <td>{{r.SaleDeliveryDeliveryRemarks}}</td>
                         <td *ngIf="record.TripStatusID==='Completed'">
 
-                            <select disabled [(ngModel)]="r.SaleDeliveryOnTripStatusID"
-                                [name]="'SaleDeliveryOnTripStatusID' + index" class="form-control" autocomplete="off"
-                                ng-options="T.SaleDeliveryOnTripStatusID as T.SaleDeliveryOnTripStatusName for T in SaleDeliveryOnTripStatusList | filterValueByArray:'SaleDeliveryOnTripStatusID':['Delivered','Rejected','Observed','Returned'] | orderBy:'SaleDeliveryOnTripStatusName'"
-                                placeholder="Resultado" id="txtSaleDeliveryOnTripStatusID"></select>
-                            <select [(ngModel)]="r.SaleDeliveryRejectReasonID" class="form-control" autocomplete="off"
-                                *ngIf="r.SaleDeliveryOnTripStatusID ==='Rejected'" disabled
-                                [name]="'SaleDeliveryRejectReasonID' + index"
-                                ng-options="T.SaleDeliveryRejectReasonID as T.SaleDeliveryRejectReasonName for T in SaleDeliveryRejectReasonList | orderBy:'SaleDeliveryRejectReasonName'"
-                                placeholder="Motivo de Rechazo" id="txtSaleDeliveryRejectReasonID">
-                                <option value=''>- Motivo Rechazo ? -</option>
-                            </select>
+                            <p disabled>{{r.SaleDeliveryOnTripStatusID}}</p>
+                            <p disabled>{{r.SaleDeliveryRejectReasonID}}</p>
 
-                            <div disabled class="form-control" placeholder="Comentarios Entrega">
+
+                            <div class="form-control" placeholder="Comentarios Entrega">
                                 {{r.SaleDeliveryOnTripRemarks}}</div>
                         </td>
+                        <td style="text-align:right">{{r.Units | number :'1.2-2'}} </td>
+                        <td style="text-align:right">{{r.Meters | number:'1.2-2'}} </td>
+                        <td style="text-align:right">{{r.Kilos | number:'1.2-2'}} </td>
+                        <td style="text-align:right">{{r.Pieces | number:'1.2-2'}} </td>
 
                     </tr>
                     <tr *ngFor="let r of record.TripWithdrawalOrder; let j=index" (click)="viewRecord(r)">
@@ -328,5 +330,57 @@
 
 
         </div>
+    </div>
+    <!-- <div class="table-responsive" [hidden]="mapVisible"> -->
+
+    <div class="table-responsive">
+        <table class="table table-bordered  table-sm">
+            <thead class="thead-dark">
+                <tr>
+                    <th tlt>EventID</th>
+                    <th tlt>Latitude</th>
+                    <th tlt>Longitude</th>
+                    <th tlt>FileID</th>
+                    <th tlt>CreatedOn</th>
+                    <th tlt>preview</th>
+
+                </tr>
+            </thead>
+            <tbody *ngFor="let r of record.TripEvent | orderBy:'-CreatedOn'; let index=index">
+                <tr *ngIf="r.SaleDeliveryID===null">
+                    <td>{{r.EventID}} </td>
+                    <td style="text-align:right; font-weight:bold">{{r.Latitude}} </td>
+                    <td style="text-align:right; font-weight:bold">{{r.Longitude}} </td>
+                    <td>
+                        <div>
+                            <a target="_blank" href="{{tripService.baseUrl}}Api/file/{{r.FileID}}"
+                                *ngIf="r.Preview===false">
+                                {{r.FileName}}
+                            </a>
+                            <a target="_blank" href="{{tripService.baseUrl}}Api/file/{{r.FileID}}"
+                                *ngIf="r.Preview===true">
+                                <img src="{{tripService.baseUrl}}Api/File/GetThumbnailFile/{{r.FileID}}"
+                                    *ngIf="r.Preview===true" />
+                            </a>
+                        </div>
+                    </td>
+                    <td>{{r.CreatedOn | date:'dd/MM/yyyy HH:mm'}} </td>
+                    <td>{{r.Preview}} </td>
+
+                </tr>
+
+
+            </tbody>
+            <tfoot>
+
+                <tr style="font-weight:bold">
+                    <td colspan="1">
+                        <button type="button" class="btn btn-outline-info">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
     </div>
 </div>
