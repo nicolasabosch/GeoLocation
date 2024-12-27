@@ -1,3 +1,4 @@
+<div [hidden]="mapVisible">
 <div class="container">
     <div *ngIf="!this.selectedRow">
         <div class="row">
@@ -31,7 +32,7 @@
                 </label>
                 <div class="form-control disabled">{{record.TripTypeName}}</div>
             </div>
-            <div class="col-sm-1 form-group" *ngif="record.TripTypeID =='Customer'">
+            <div class="col-sm-1 form-group" *ngIf="record.TripTypeID =='Customer'">
                 <label for="txtDeliveryZoneName" tlt>
                     Zona
                 </label>
@@ -64,6 +65,11 @@
 
 
         </div>
+        <div>
+            <button *ngIf="!isTripStarted()" (click)="setLocation('StartTrip',null,null)">Comenzar viaje</button>
+            <button *ngIf="isTripStarted()" (click)="setLocation('FinishTrip',null,null)">Finalizar el viaje</button>
+            
+        </div>
         <div class="table-responsive">
             <table class="table table-bordered  table-sm">
                 <thead class="thead-dark">
@@ -73,12 +79,11 @@
                         <th tlt>Pedido</th>
                         <th tlt>Vendedor</th>
                         <th tlt>Cliente</th>
-                        <th *ngif="record.TripTypeID =='Customer'" tlt="Dirección"></th>
-                        <th *ngif="record.TripTypeID =='Customer'" tlt="Zona"></th>
-                        <th *ngif="record.TripTypeID =='Customer'" tlt="Instrucciones de Entrega"></th>
-                        <th tlt *ngif="action==='Finishing' || record.TripStatusID==='Completed'">Comentarios logistica</th>
+                        <th *ngIf="record.TripTypeID =='Customer'" tlt="Dirección">Direccion</th>
+                        <th *ngIf="record.TripTypeID =='Customer'" tlt="Zona">Zona</th>
+                        <th *ngIf="record.TripTypeID =='Customer'" tlt="Instrucciones de Entrega">Instrucciones de Entrega</th>
+                        <th tlt *ngIf="record.TripStatusID==='Completed'">Comentarios logistica</th>
                         <th tlt>Resultado viaje</th>
-                        <th tlt>Comentarios Logistica</th>
                         <th tlt>Bultos</th>
                         <th tlt>Mts</th>
                         <th tlt>Kgs</th>
@@ -162,6 +167,10 @@
                             <div disabled class="form-control" placeholder="Comentarios Entrega">
                                 {{r.SaleDeliveryOnTripRemarks}}</div>
                         </td>
+                        <td style="text-align:right">{{r.Units | number :'1.2-2'}} </td>
+                        <td style="text-align:right">{{r.Meters | number:'1.2-2'}} </td>
+                        <td style="text-align:right">{{r.Kilos | number:'1.2-2'}} </td>
+                        <td style="text-align:right">{{r.Pieces | number:'1.2-2'}} </td>
                     </tr>
                     <tr *ngFor="let r of record.TripSaleRetail; let h=index" (click)="viewRecord(r)">
                         <td></td>
@@ -206,21 +215,11 @@
                     </tr>
 
                 </tbody>
-                <tfoot>
-
-                    <tr style="font-weight:bold">
-                        <td colspan="1">
-                            <button type="button" class="btn btn-outline-info">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </td>
-                    </tr>
-                </tfoot>
+                
             </table>
         </div>
     </div>
     <div *ngIf="this.selectedRow">
-        <!-- <pre>{{this.selectedRow | json}}</pre> -->
 
         <button type="button" class="btn btn-primary" style="float: right;" (click)="backToRecordList()">Back</button>
         <div class="row">
@@ -302,25 +301,12 @@
             </div>
         </div>
         <div style="width: 100%;" id="map">
-            <!-- <iframe  *ngIf="record.coords" width="425" height="350" [src]="record.url | safe"
-        style="border: 1px solid black"></iframe><br/> -->
-            <!--
-              <a href="https://www.openstreetmap.org/#map=19/{{record.coords.longitude}}/{{record.coords.latitude}}"></a></small>
-          {{record.coords | json}} -->
-
-
-            <!-- <button type="button" class="btn btn-info" (click)="getLocation()">Ubicame</button>
-
-            <iframe *ngIf="!!currentPositionUrl" width="425" height="350" frameborder="0" scrolling="no"
-                marginheight="0" marginwidth="0" [src]="currentPositionUrl"></iframe> -->
-
-
+           
             <pre *ngIf="record?.coords"></pre>
             <label for="myFile" class="btn btn-success">
                 <i class="fas fa-upload"></i>&nbsp;&nbsp;<span tlt>Subir Archivo</span>
             </label>
-            <!-- <input type="file" name="recordProjectFileID" id="recordProjectFileID"
-          (change)="uploadFile($event,record,'FileID')" /> -->
+            
 
             <input class="btn btn-success" type="file" id="myFile" name="filename" accept="image/*"
                 (change)="uploadFile($event,record,'FileID')" capture>
@@ -331,26 +317,29 @@
 
         </div>
     </div>
-    <!-- <div class="table-responsive" [hidden]="mapVisible"> -->
 
     <div class="table-responsive">
         <table class="table table-bordered  table-sm">
             <thead class="thead-dark">
                 <tr>
-                    <th tlt>EventID</th>
-                    <th tlt>Latitude</th>
-                    <th tlt>Longitude</th>
-                    <th tlt>FileID</th>
-                    <th tlt>CreatedOn</th>
-                    <th tlt>preview</th>
+                    <th tlt>Evento</th>
+                    <th tlt>Ubicación</th>
+                    <th tlt>Foto</th>
+                    <th tlt>Creado el</th>
 
                 </tr>
             </thead>
             <tbody *ngFor="let r of record.TripEvent | orderBy:'-CreatedOn'; let index=index">
                 <tr *ngIf="r.SaleDeliveryID===null">
-                    <td>{{r.EventID}} </td>
-                    <td style="text-align:right; font-weight:bold">{{r.Latitude}} </td>
-                    <td style="text-align:right; font-weight:bold">{{r.Longitude}} </td>
+                    <td>{{(tripService.eventList | filter:'EventID':r.EventID)[0].EventName }}</td>    
+                    <td class="col-sm-1">
+                        <label for="Location" class="btn btn-dark">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </label>
+                        <button class="btn btn-dark" id="Location" (click)="viewPosition(r)"
+                            style="visibility: hidden;"></button>
+                    </td>
+                    
                     <td>
                         <div>
                             <a target="_blank" href="{{tripService.baseUrl}}Api/file/{{r.FileID}}"
@@ -365,22 +354,15 @@
                         </div>
                     </td>
                     <td>{{r.CreatedOn | date:'dd/MM/yyyy HH:mm'}} </td>
-                    <td>{{r.Preview}} </td>
 
                 </tr>
-
-
             </tbody>
-            <tfoot>
-
-                <tr style="font-weight:bold">
-                    <td colspan="1">
-                        <button type="button" class="btn btn-outline-info">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                    </td>
-                </tr>
-            </tfoot>
+            
         </table>
     </div>
 </div>
+</div>
+<iframe *ngIf="!!currentPositionUrl" width="425" height="350" frameborder="0" scrolling="no" marginheight="0"
+    marginwidth="0" [src]="currentPositionUrl" [hidden]="!mapVisible"></iframe>
+<button class="button" style="position: absolute;top: 0px; left:400px;" (click)="closeMap()"
+    [hidden]="!mapVisible">X</button>

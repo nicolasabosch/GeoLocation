@@ -5,6 +5,8 @@ import { FormsModule, NgModel } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { HttpClient, HttpErrorResponse, HttpEvent, HttpEventType, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { SafePipe } from './../common';
+import { CommonModule } from '@angular/common'
+
 import { GeolocationService } from '@ng-web-apis/geolocation';
 import { catchError, Observable, pipe, take, tap, throwError } from 'rxjs';
 import { TripService } from '../TripService/trip.service';
@@ -14,7 +16,7 @@ import { OrderByPipe } from "../pipes/order-by.pipe";
 @Component({
   selector: 'app-trip',
   standalone: true,
-  imports: [JsonPipe, FormsModule, DatePipe, NgFor, NgIf, NgStyle, CurrencyPipe, SafePipe, FilterPipe, OrderByPipe, DecimalPipe],
+  imports: [JsonPipe, FormsModule, DatePipe, NgFor, NgIf, NgStyle, CurrencyPipe, SafePipe, FilterPipe, OrderByPipe, DecimalPipe, CommonModule],
   templateUrl: './Trip-crud.html',
   styleUrl: './trip.component.css'
 
@@ -29,40 +31,95 @@ export class TripComponent implements OnInit, AfterViewChecked {
   inputFile: HTMLInputElement | undefined;
   error: GeolocationPositionError | null = null;
   fileID: string | null = null;
+  currentPositionUrl: SafeResourceUrl | null = null;
+  mapVisible: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
     public tripService: TripService,
     public router: Router,
-    public location: PlatformLocation
+    public location: PlatformLocation,
+    private readonly changeDetectorRef: ChangeDetectorRef
 
   ) {
 
   }
   ngAfterViewChecked(): void {
   }
+  viewPosition(r: any): void {
+
+    var position: any = {};
+    position = {
+      coords: {
+        latitude: parseFloat(r.Latitude),
+        longitude: parseFloat(r.Longitude)
+      }
+    }
+    this.mapVisible = true;
+    this.currentPositionUrl = this.tripService.getUrl(position);
+    this.changeDetectorRef.markForCheck();
+  }
+  closeMap(): void {
+    this.mapVisible = false;
+  }
 
   ngOnInit() {
     this.id = this.route.snapshot.paramMap.get('id');
-    // console.log(this.id);
-    if (this.tripService.record && this.tripService.record.TripID==this.id) {
+    if (this.tripService.record && this.tripService.record.TripID == this.id) {
       this.record = this.tripService.record
     }
-    else{
-    
-    this.tripService.getTrip(this.id)
-      .subscribe(data => { this.record = data }, function (error) {
-        console.log(error);
-        alert("error");
-      })
+    else {
+
+      this.tripService.getTrip(this.id)
+        .subscribe(data => {
+          this.record = data;
+          this.tripService.getEventList().subscribe(data => { this.tripService.eventList = data }, function (error) {
+            alert("error");
+          })
+        }, function (error) {
+
+        })
     }
   }
 
+isTripStarted():boolean{
+
+  return this.record.TripEvent.filter(function(e:any){return e.EventID=='StartTrip'}).length>0;
+}
+
+
+  setLocation(EventID: string, SaleDeliveryID:string, SourceID: string): void {
+    var tripEvent: any = {};
+
+    tripEvent.TripID = this.record.TripID
+    tripEvent.SaleDeliveryID = SaleDeliveryID
+    tripEvent.SourceID = SourceID
+    this.tripService.getLocation().subscribe((position: GeolocationPosition) => {
+      this.mapVisible = true;
+     
+      this.currentPositionUrl = this.tripService.getUrl(position);
+      this.changeDetectorRef.markForCheck();
+     
+
+      tripEvent.Longitude = position.coords.longitude;
+      tripEvent.Latitude = position.coords.latitude;
+      tripEvent.EventID = EventID;
+      tripEvent.Preview = false;
+
+      this.tripService.addTripEvent(tripEvent)
+
+
+    }, (error: any) => {
+      alert('Error getting location' + error);
+      tripEvent.EventID = "FailedToGetLocation";
+      this.tripService.addTripEvent(tripEvent)
+    }
+    )
+  }
+
   viewRecord(r: any): void {
-    //this.selectedRow=r
     this.tripService.selectedRow = r
     this.tripService.record = this.record
-    console.log(r)
     this.router.navigate([this.location.pathname, r.SaleDeliveryID], {
       relativeTo: this.route,
     });
@@ -70,7 +127,6 @@ export class TripComponent implements OnInit, AfterViewChecked {
 
   }
   backToRecordList() {
-    //this.selectedRow=null
     this.tripService.selectedRow = null
     this.record = this.tripService.record
   }
@@ -78,8 +134,7 @@ export class TripComponent implements OnInit, AfterViewChecked {
   public handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
 
-      // TODO: send the error to remote logging infrastructure
-      alert((error)); // log to console instead
+      alert((error));
       return throwError(() => new Error('Something bad happened; please try again later.'));
     };
   }
@@ -93,7 +148,6 @@ export class TripComponent implements OnInit, AfterViewChecked {
     var img = new Image;
     img.src = URL.createObjectURL(target.files[0]);
     var canva = (<HTMLCanvasElement>document.getElementById('canvaid'));
-    //ctx.scale(0.3,0.3);
     img.onload = function () {
       var size = 1000
       const ratio = Math.min(size / img.width, size / img.height)

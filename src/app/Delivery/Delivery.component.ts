@@ -43,7 +43,6 @@ viewPosition(r:any):void{
       longitude: parseFloat(r.Longitude)
     }
   }
-  console.log(position)
   this.mapVisible = true;
   this.currentPositionUrl = this.tripService.getUrl(position);
   this.changeDetectorRef.markForCheck();
@@ -116,8 +115,7 @@ viewPosition(r:any):void{
     (await this.tripService.uploadFileToURL(files[0])).subscribe(
       (res: any) => {
         if (res.body) {
-          console.log(res)
-          console.log(this.record)
+          
           var tripEvent: any = {};
           tripEvent.Preview = res.body.Preview
           tripEvent.FileID = res.body.FileID

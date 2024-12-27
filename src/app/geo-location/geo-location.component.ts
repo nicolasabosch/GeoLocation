@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, AfterViewChecked, inject,  } from '@angular/core';
+import { Component, OnInit, Input, AfterViewChecked, inject, ChangeDetectorRef,  } from '@angular/core';
 import { GeolocationService } from '@ng-web-apis/geolocation';
 import { FormsModule } from '@angular/forms';
 import { CurrencyPipe, DatePipe, TitleCasePipe, JsonPipe } from '@angular/common';
@@ -25,7 +25,8 @@ export class GeoLocationComponent implements AfterViewChecked {
   baseUrl: string = "https://9q08dmvx-5004.brs.devtunnels.ms/";
   inputFile: HTMLInputElement | undefined;
   geolocation: GeolocationService
-  constructor(public http: HttpClient, geolocation: GeolocationService) {
+  constructor(public http: HttpClient, geolocation: GeolocationService, private readonly changeDetectorRef: ChangeDetectorRef,
+  ) {
 
       this.geolocation=geolocation
       geolocation.subscribe(position => this.getLocation(position))
@@ -41,14 +42,11 @@ export class GeoLocationComponent implements AfterViewChecked {
 
   getLocation(position: any): void {
 
-    console.log(position)
     var Latitud = position.coords.latitude
     var Longitud = position.coords.longitude
-    console.log(Longitud)
-    console.log(Latitud)
+    
     this.record = position;
     this.record.url = "https://www.openstreetmap.org/export/embed.html?bbox=" + this.record.coords.longitude + "%2C" + this.record.coords.latitude + "&amp;layer=mapnik"
-    console.log(this.url)
 
   }
 
@@ -99,7 +97,6 @@ export class GeoLocationComponent implements AfterViewChecked {
     let uploadURL = this.baseUrl + "api/File";
     const headers = new HttpHeaders({ 'ngsw-bypass': '' });
     const formData: FormData = new FormData();
-    console.log(this.record)
 
     formData.append("latitude", this.record.coords.latitude)
     formData.append("longitude", this.record.coords.longitude)
@@ -114,7 +111,6 @@ export class GeoLocationComponent implements AfterViewChecked {
       }).pipe(
         //tap(_ => { /* console.log(this.url + " OK") */ }),
         tap((resizedFile: any) => {
-          //console.log(resizedFile)
         }),
         catchError(this.handleError<any[]>('query', []))
       );
