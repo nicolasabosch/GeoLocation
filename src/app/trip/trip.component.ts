@@ -23,7 +23,7 @@ import { OrderByPipe } from "../pipes/order-by.pipe";
 })
 export class TripComponent implements OnInit, AfterViewChecked {
   id: string
-  record: any = {}
+  record: any;
   selectedID: any;
   r: any;
   selectedRow: any;
@@ -33,6 +33,8 @@ export class TripComponent implements OnInit, AfterViewChecked {
   fileID: string | null = null;
   currentPositionUrl: SafeResourceUrl | null = null;
   mapVisible: boolean = false;
+  pictureVisible: boolean = false;
+
 
   constructor(
     private route: ActivatedRoute,
@@ -84,7 +86,65 @@ export class TripComponent implements OnInit, AfterViewChecked {
 
 isTripStarted():boolean{
 
+  if(this.record==null){
+    return false;
+  }
+
   return this.record.TripEvent.filter(function(e:any){return e.EventID=='StartTrip'}).length>0;
+}
+
+public async takePicture(event: any, model: any, fieldName: string) {
+
+  let target: HTMLInputElement = <HTMLInputElement>event.target;
+  let files: FileList = target.files;
+
+  var ctx = (<HTMLCanvasElement>document.getElementById('canvaid')).getContext('2d');
+  var img = new Image;
+  img.src = URL.createObjectURL(target.files[0]);
+  var canva = (<HTMLCanvasElement>document.getElementById('canvaid'));
+  //ctx.scale(0.3,0.3);
+
+  
+  img.onload = function () {
+    var size = 1000
+    const ratio = Math.min(size / img.width, size / img.height)
+    canva.width = img.width * ratio
+    canva.height = img.height * ratio
+    ctx.drawImage(img, 0, 0, img.width * ratio, img.height * ratio);
+  };
+
+  (await this.tripService.uploadFileToURL(files[0])).subscribe(
+    (res: any) => {
+      if (res.body) {
+        
+        var tripEvent: any = {};
+        tripEvent.Preview = res.body.Preview
+        tripEvent.FileID = res.body.FileID
+        tripEvent.TripID = this.record.TripID
+        // tripEvent.SaleDeliveryID = this.selectedRow.SaleDeliveryID
+        tripEvent.SaleDeliveryID = null
+        // tripEvent.SourceID = this.selectedRow.SourceID
+        tripEvent.SourceID = null
+        tripEvent.EventID = "PictureInTrip"
+
+        this.tripService.getLocation().subscribe((position: GeolocationPosition) => {
+          this.currentPositionUrl = this.tripService.getUrl(position);
+          this.changeDetectorRef.markForCheck();
+          tripEvent.Longitude = position.coords.longitude;
+          tripEvent.Latitude = position.coords.latitude;
+          this.tripService.addTripEvent(tripEvent);
+        }, (error: any) => {
+          this.tripService.addTripEvent(tripEvent);
+          alert('Error getting location' + error)
+        });
+
+      }
+
+    },
+    (err: any) => alert(err)
+  );
+
+
 }
 
 
@@ -119,6 +179,12 @@ isTripStarted():boolean{
 
   viewRecord(r: any): void {
     this.tripService.selectedRow = r
+    if(this.tripService.selectedRow.SaleDeliveryOnTripStatusID=='Assigned'){
+
+      this.tripService.selectedRow.SaleDeliveryOnTripStatusID = undefined
+      this.tripService.selectedRow.SaleDeliveryRejectReasonID = undefined
+    }
+
     this.tripService.record = this.record
     this.router.navigate([this.location.pathname, r.SaleDeliveryID], {
       relativeTo: this.route,

@@ -10,23 +10,29 @@ import { catchError, Observable, take, tap, throwError } from 'rxjs';
 import { TripService } from '../TripService/trip.service';
 import { FilterPipe } from '../pipes/filter.pipe';
 import { OrderByPipe } from '../pipes/order-by.pipe';
+import { filterValueByArrayPipe } from "../pipes/filterValueByArray.pipe";
+
 
 
 @Component({
   selector: 'app-Delivery',
   standalone: true,
-  imports: [JsonPipe, FormsModule, DatePipe, NgFor, NgIf, NgStyle, CurrencyPipe, SafePipe, FilterPipe, CommonModule, OrderByPipe],
+  imports: [JsonPipe, FormsModule, DatePipe, NgFor, NgIf, NgStyle, CurrencyPipe, SafePipe, FilterPipe, CommonModule, OrderByPipe, filterValueByArrayPipe],
   templateUrl: './Delivery.html',
   styleUrl: './Delivery.component.css'
 
 })
+
 export class DeliveryComponent implements AfterContentInit {
 
-  selectedRow: any;
+  selectedRow: any={};
   record: any = {}
   currentPositionUrl: SafeResourceUrl | null = null;
   mapVisible: boolean = false;
   pictureVisible: boolean = false;
+  search: any = {};
+  SaleDeliveryOnTripStatusList: any = [];
+  SaleDeliveryRejectReasonList: any = [];
   constructor(
     private readonly changeDetectorRef: ChangeDetectorRef,
     public tripService: TripService,
@@ -34,23 +40,38 @@ export class DeliveryComponent implements AfterContentInit {
 
   ) { }
 
-viewPosition(r:any):void{
-  
-  var position:any= {};
-  position = {
-    coords: {
-      latitude: parseFloat(r.Latitude),
-      longitude: parseFloat(r.Longitude)
-    }
+  ngOnInit(): void {
+    //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
+    //Add 'implements OnInit' to the class.
+    this.tripService.getSaleDeliveryOnTripStatus()
+      .subscribe(data => {
+        this.SaleDeliveryOnTripStatusList = data;
+      });
+
+      this.tripService.getSaleDeliveryRejectReason()
+      .subscribe(data => {
+        this.SaleDeliveryRejectReasonList = data;
+      });
   }
-  this.mapVisible = true;
-  this.currentPositionUrl = this.tripService.getUrl(position);
-  this.changeDetectorRef.markForCheck();
-}
+
+  viewPosition(r: any): void {
+
+    var position: any = {};
+    position = {
+      coords: {
+        latitude: parseFloat(r.Latitude),
+        longitude: parseFloat(r.Longitude)
+      }
+    }
+    this.mapVisible = true;
+    this.currentPositionUrl = this.tripService.getUrl(position);
+    this.changeDetectorRef.markForCheck();
+  }
 
   closeMap(): void {
     this.mapVisible = false;
   }
+
 
   setLocation(EventID: string): void {
     var tripEvent: any = {};
@@ -60,10 +81,10 @@ viewPosition(r:any):void{
     tripEvent.SourceID = this.selectedRow.SourceID
     this.tripService.getLocation().subscribe((position: GeolocationPosition) => {
       this.mapVisible = true;
-     
+
       this.currentPositionUrl = this.tripService.getUrl(position);
       this.changeDetectorRef.markForCheck();
-     
+
 
       tripEvent.Longitude = position.coords.longitude;
       tripEvent.Latitude = position.coords.latitude;
@@ -103,7 +124,7 @@ viewPosition(r:any):void{
     var canva = (<HTMLCanvasElement>document.getElementById('canvaid'));
     //ctx.scale(0.3,0.3);
 
-    
+
     img.onload = function () {
       var size = 1000
       const ratio = Math.min(size / img.width, size / img.height)
@@ -115,7 +136,7 @@ viewPosition(r:any):void{
     (await this.tripService.uploadFileToURL(files[0])).subscribe(
       (res: any) => {
         if (res.body) {
-          
+
           var tripEvent: any = {};
           tripEvent.Preview = res.body.Preview
           tripEvent.FileID = res.body.FileID
@@ -140,6 +161,7 @@ viewPosition(r:any):void{
       },
       (err: any) => alert(err)
     );
+
 
 
   }

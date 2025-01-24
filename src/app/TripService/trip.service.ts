@@ -9,7 +9,7 @@ import { catchError, Observable, take, tap, throwError } from 'rxjs';
   providedIn: 'root'
 })
 export class TripService {
-  selectedRow: any;
+  selectedRow: any={};
   record: any = {}
   baseUrl: string = "https://9q08dmvx-5004.brs.devtunnels.ms/";
   eventList: any = []
@@ -24,6 +24,14 @@ export class TripService {
   getTrip(tripID: any): Observable<any> {
     return this.http.get(this.baseUrl + "Api/Trip/" + tripID)
   }
+  getSaleDeliveryRejectReason(): Observable<any> {
+    return this.http.get(this.baseUrl + "Api/SaleDeliveryRejectReason")
+  }
+
+  getSaleDeliveryOnTripStatus(): Observable<any> {
+    return this.http.get(this.baseUrl + "Api/SaleDeliveryOnTripStatus")
+  }
+
   getEventList(): Observable<any> {
     return this.http.get(this.baseUrl + "Api/Event")
   }
@@ -103,12 +111,44 @@ export class TripService {
     const headers = new HttpHeaders({ 'ngsw-bypass': '' });
 
     this.http.post<any>(this.baseUrl + "Api/TripEvent", tripEvent, {}).subscribe((data: any) => {
+      console.log(data);
       tripEvent.TripEventID = data.TripEventID;
       tripEvent.CreatedOn = data.CreatedOn;
       this.record.TripEvent.push(tripEvent);
 
     }, (err: any) => console.log(err));
 
+  }
+
+  filterValueByArray(items: any[], fieldName: string, values: any[]) {
+    if (!values || values.length === 0) {
+      return items;
+    }
+    var filtered: any[] = [];
+    items.forEach((item) => {
+      try {
+        if (item[fieldName] === null) {
+          if (
+            values.some(function (e) {
+              return e === null;
+            })
+          )
+            filtered.push(item);
+        } else {
+          var noNullValue = values.filter(function (e) {
+            return e !== null;
+          });
+          if (
+            noNullValue.some(function (e) {
+              return e.toString() === item[fieldName].toString();
+            })
+          )
+            filtered.push(item);
+        }
+      } catch (e) {}
+    });
+
+    return filtered;
   }
 
 }

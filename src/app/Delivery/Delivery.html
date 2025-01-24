@@ -59,25 +59,53 @@
             </label>
             <div class="form-control disabled">{{selectedRow.DeliveryInstruction}}</div>
         </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-2 form-group">
+            <label for="txtWarehouseID" tlt>
+                Estado de entrega
+            </label>
+            
+                <select [(ngModel)]="selectedRow.SaleDeliveryOnTripStatusID" class="form-select" autocomplete="off"
+                    placeholder="Estado de entrega" name="txtSaleDeliveryOnTripStatusID">
+                    <option [ngValue]=undefined selected tlt> - Seleccione -</option>
+                    <option [value]="T.SaleDeliveryOnTripStatusID"
+                        *ngFor="let T of SaleDeliveryOnTripStatusList | filterValueByArray:'SaleDeliveryOnTripStatusID':['Delivered','Rejected','Observed','Returned']  | orderBy:'SaleDeliveryOnTripStatusName'">
+                        {{ T.SaleDeliveryOnTripStatusName }}
+                    </option>
+                </select>
+            
+
+        </div>
+
+        <div class="col-sm-3 form-group" *ngIf="selectedRow.SaleDeliveryOnTripStatusID ==='Rejected'">
+            <label for="txtWarehouseID" tlt>
+                Motivo rechazo
+            </label>
+
+            <select [(ngModel)]="selectedRow.SaleDeliveryRejectReasonID" class="form-select" autocomplete="off"
+                placeholder="Motivo rechazo" name="txtSaleDeliveryRejectReasonID">
+                <option [ngValue]=undefined selected tlt>- Seleccione -</option>
+                <option [value]="T.SaleDeliveryRejectReasonID"
+                    *ngFor="let T of SaleDeliveryRejectReasonList | orderBy:'SaleDeliveryRejectReasonName'">{{
+                    T.SaleDeliveryRejectReasonName }}
+                </option>
+
+            </select>
+
+        </div>
+
         <div class="col-sm-2 form-group">
             <label for="txtDriverName" tlt>
                 Comentarios logistica
             </label>
-            <select disabled [(ngModel)]="selectedRow.SaleDeliveryOnTripStatusID" name="SaleDeliveryDeliveryRemarks"
-                class="form-control" autocomplete="off"
-                ng-options="T.SaleDeliveryOnTripStatusID as T.SaleDeliveryOnTripStatusName for T in SaleDeliveryOnTripStatusList | filterValueByArray:'SaleDeliveryOnTripStatusID':['Delivered','Rejected','Observed','Returned'] | orderBy:'SaleDeliveryOnTripStatusName'"
-                placeholder="Resultado" id="txtSaleDeliveryOnTripStatusID"></select>
-            <select [(ngModel)]="selectedRow.SaleDeliveryRejectReasonID" name="SaleDeliveryRejectReasonID"
-                class="form-control" autocomplete="off" *ngIf="selectedRow.SaleDeliveryOnTripStatusID ==='Rejected'"
-                disabled
-                ng-options="T.SaleDeliveryRejectReasonID as T.SaleDeliveryRejectReasonName for T in SaleDeliveryRejectReasonList | orderBy:'SaleDeliveryRejectReasonName'"
-                placeholder="Motivo de Rechazo" id="txtSaleDeliveryRejectReasonID">
-                <option value=''>- Motivo Rechazo ? -</option>
-            </select>
+            <textarea class="form-control" [(ngModel)]="selectedRow.SaleDeliveryOnTripRemarks"
+                placeholder="Comentarios Entrega"></textarea>
 
-            <div disabled class="form-control" placeholder="Comentarios Entrega">
-                {{selectedRow.SaleDeliveryOnTripRemarks}}</div>
+            <!-- <div disabled class="form-control" placeholder="Comentarios Entrega">
+                {{selectedRow.SaleDeliveryOnTripRemarks}}</div> -->
         </div>
+        <button type="button" class="btn btn-success col-sm-2">Grabar</button>
     </div>
     <div style="width: 100%;" id="map">
 
@@ -92,9 +120,6 @@
             destino</button>
         <button type="button" class="btn btn-info" (click)="setLocation('LeftFromDestination')">Salida del
             destino</button>
-
-
-
 
         <canvas id="canvaid" [hidden]="!pictureVisible"
             style="max-width: 1000px; max-height: 1000px; border: solid 1px blue;"></canvas>
@@ -140,7 +165,7 @@
                 <td>{{r.CreatedOn | date:'dd/MM/yyyy HH:mm'}} </td>
             </tr>
         </tbody>
-        
+
     </table>
 </div>
 <iframe *ngIf="!!currentPositionUrl" width="425" height="350" frameborder="0" scrolling="no" marginheight="0"
