@@ -93,6 +93,15 @@ isTripStarted():boolean{
   return this.record.TripEvent.filter(function(e:any){return e.EventID=='StartTrip'}).length>0;
 }
 
+isTripclosed():boolean{
+  if(this.record==null){
+    return false;
+  }
+
+  return this.record.TripEvent.filter(function(e:any){return e.EventID=='FinishTrip'}).length>0;
+
+}
+
 public async takePicture(event: any, model: any, fieldName: string) {
 
   let target: HTMLInputElement = <HTMLInputElement>event.target;

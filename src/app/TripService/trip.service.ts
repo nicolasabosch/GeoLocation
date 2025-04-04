@@ -11,7 +11,8 @@ import { catchError, Observable, take, tap, throwError } from 'rxjs';
 export class TripService {
   selectedRow: any={};
   record: any = {}
-  baseUrl: string = "https://9q08dmvx-5004.brs.devtunnels.ms/";
+  // baseUrl: string = "https://ww1qmdpz-5004.brs.devtunnels.ms/";
+  baseUrl: string="http://localhost:5004/"
   eventList: any = []
 
 

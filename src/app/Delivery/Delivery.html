@@ -67,7 +67,7 @@
             </label>
             
                 <select [(ngModel)]="selectedRow.SaleDeliveryOnTripStatusID" class="form-select" autocomplete="off"
-                    placeholder="Estado de entrega" name="txtSaleDeliveryOnTripStatusID">
+                    placeholder="Estado de entrega" name="txtSaleDeliveryOnTripStatusID" (change)="SaleDeliveryOnTripStatusChanged(selectedRow)">
                     <option [ngValue]=undefined selected tlt> - Seleccione -</option>
                     <option [value]="T.SaleDeliveryOnTripStatusID"
                         *ngFor="let T of SaleDeliveryOnTripStatusList | filterValueByArray:'SaleDeliveryOnTripStatusID':['Delivered','Rejected','Observed','Returned']  | orderBy:'SaleDeliveryOnTripStatusName'">
@@ -105,9 +105,9 @@
             <!-- <div disabled class="form-control" placeholder="Comentarios Entrega">
                 {{selectedRow.SaleDeliveryOnTripRemarks}}</div> -->
         </div>
-        <button type="button" class="btn btn-success col-sm-2">Grabar</button>
+        <!-- <button type="button" class="btn btn-success col-sm-2">Grabar</button> -->
     </div>
-    <div style="width: 100%;" id="map">
+    <div style="width: 100%;" id="map" [hidden]="isTripStarted() && !isTripclosed()">
 
         <pre *ngIf="record?.coords"></pre>
         <label for="myFile" class="btn btn-success">
@@ -123,8 +123,6 @@
 
         <canvas id="canvaid" [hidden]="!pictureVisible"
             style="max-width: 1000px; max-height: 1000px; border: solid 1px blue;"></canvas>
-
-
 
     </div>
 </div>

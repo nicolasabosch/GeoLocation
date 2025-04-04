@@ -1,4 +1,5 @@
 <div [hidden]="mapVisible">
+    <pre>{{record.TripSaleRetail | json}}</pre>
     <div class="container" *ngIf="record">
         <div *ngIf="!this.selectedRow">
             <div class="row">
@@ -65,10 +66,11 @@
 
 
             </div>
+
             <div>
                 <button *ngIf="!isTripStarted()" (click)="setLocation('StartTrip',null,null)"
                     class="btn btn-primary">Comenzar viaje</button>
-                <button *ngIf="isTripStarted()" (click)="setLocation('FinishTrip',null,null)"
+                <button *ngIf="isTripStarted() && !isTripclosed()" (click)="setLocation('FinishTrip',null,null)"
                     class="btn btn-danger">Finalizar el viaje</button>
 
                 
@@ -141,7 +143,6 @@
 
                         </tr>
                         <tr *ngFor="let r of record.TripWithdrawalOrder; let j=index" (click)="viewRecord(r)">
-
                             <td>{{r.SourceName}} </td>
                             <td style="text-align:right; font-weight:bold">{{r.SaleDeliveryNumber}} </td>
                             <td style="text-align:right">{{r.SaleOrderNumber}} </td>
@@ -184,8 +185,9 @@
                             <td style="text-align:right">{{r.Kilos | number:'1.2-2'}} </td>
                             <td style="text-align:right">{{r.Pieces | number:'1.2-2'}} </td>
                         </tr>
-                        <tr *ngFor="let r of record.TripSaleRetail; let h=index" (click)="viewRecord(r)">
-                            <td></td>
+                        <!-- <tr *ngFor="let r of record.TripSaleRetail; let h=index" (click)="viewRecord(r)">
+
+                        
                             <td>{{r.SourceName}} </td>
                             <td style="text-align:right; font-weight:bold">{{r.SaleDeliveryNumber}} </td>
                             <td style="text-align:right">{{r.SaleOrderNumber}} </td>
@@ -224,8 +226,51 @@
                                 <div {{r.SaleDeliveryOnTripRemarks}} disabled class="form-control"
                                     placeholder="Comentarios Entrega"></div>
                             </td>
-                        </tr>
+                        </tr> -->
 
+                        <tr *ngFor="let r of record.TripSaleRetail; let u=index" (click)="viewRecord(r)">
+                            <td>{{r.SourceName}} </td>
+                            <td style="text-align:right; font-weight:bold">{{r.SaleDeliveryNumber}} </td>
+                            <td style="text-align:right">{{r.SaleOrderNumber}} </td>
+                            <td>{{r.SaleRepresentativeName}} </td>
+                            <td>{{r.CustomerName}} </td>
+                            <td *ngIf="record.TripTypeID =='Customer'">
+                                <div [hidden]="!(record.TripTypeID =='Customer' && record.DeliveryZoneID !=='Expreso')">
+                                    {{r.Address}} {{r.DistrictName}} ({{r.ZipCode}}) {{r.StateName}}
+                                </div>
+                                <div [hidden]="!(record.TripTypeID =='Customer' && record.DeliveryZoneID ==='Expreso')">
+                                    <strong>{{r.CarrierName}}</strong><br />
+                                    {{r.CarrierAddress}} {{r.CarrierPhone}}
+                                </div>
+                            </td>
+                            <td *ngIf="record.TripTypeID =='Customer'"
+                                [ngStyle]="(r.DeliveryZoneID !== record.DeliveryZoneID  && {'color':'white','background-color':'red','font-weight':'bold'})">
+                                {{r.DeliveryZoneName}} </td>
+                            <td *ngIf="record.TripTypeID =='Customer'">{{r.DeliveryInstruction}} </td>
+                            <td><textarea disabled [(ngModel)]="r.SaleDeliveryDeliveryRemarks"
+                                    [name]="'SaleDeliveryDeliveryRemarksu' + u" class="form-control"></textarea></td>
+                            <td *ngIf="record.TripStatusID==='Completed'">
+
+                                <select disabled [(ngModel)]="r.SaleDeliveryOnTripStatusID"
+                                    [name]="'SaleDeliveryOnTripStatusIDu' + u" class="form-control" autocomplete="off"
+                                    ng-options="T.SaleDeliveryOnTripStatusID as T.SaleDeliveryOnTripStatusName for T in SaleDeliveryOnTripStatusList | filterValueByArray:'SaleDeliveryOnTripStatusID':['Delivered','Rejected','Observed','Returned'] | orderBy:'SaleDeliveryOnTripStatusName'"
+                                    placeholder="Resultado" id="txtSaleDeliveryOnTripStatusID"></select>
+                                <select [(ngModel)]="r.SaleDeliveryRejectReasonID"
+                                    [name]="'SaleDeliveryRejectReasonIDu' + u" class="form-control" autocomplete="off"
+                                    *ngIf="r.SaleDeliveryOnTripStatusID ==='Rejected'" disabled
+                                    ng-options="T.SaleDeliveryRejectReasonID as T.SaleDeliveryRejectReasonName for T in SaleDeliveryRejectReasonList | orderBy:'SaleDeliveryRejectReasonName'"
+                                    placeholder="Motivo de Rechazo" id="txtSaleDeliveryRejectReasonID">
+                                    <option value=''>- Motivo Rechazo ? -</option>
+                                </select>
+
+                                <div disabled class="form-control" placeholder="Comentarios Entrega">
+                                    {{r.SaleDeliveryOnTripRemarks}}</div>
+                            </td>
+                            <td style="text-align:right">{{r.Units | number :'1.2-2'}} </td>
+                            <td style="text-align:right">{{r.Meters | number:'1.2-2'}} </td>
+                            <td style="text-align:right">{{r.Kilos | number:'1.2-2'}} </td>
+                            <td style="text-align:right">{{r.Pieces | number:'1.2-2'}} </td>
+                        </tr> 
                     </tbody>
 
                 </table>
@@ -342,7 +387,7 @@
                 </thead>
                 <tbody *ngFor="let r of record.TripEvent | orderBy:'-CreatedOn'; let index=index">
                     <tr *ngIf="r.SaleDeliveryID===null">
-                        <!-- <td>{{(tripService?.eventList | filter:'EventID':r.EventID)[0].EventName }}</td> -->
+                        <td>{{(tripService?.eventList | filter:'EventID':r.EventID)[0].EventName }}</td>
                         <td class="col-sm-1">
                             <label for="Location" class="btn btn-dark">
                                 <i class="fa-solid fa-location-dot"></i>

@@ -72,6 +72,31 @@ export class DeliveryComponent implements AfterContentInit {
     this.mapVisible = false;
   }
 
+  isTripStarted():boolean{
+
+    if(this.record==null){
+      return false;
+    }
+  
+    return this.record.TripEvent.filter(function(e:any){return e.EventID=='StartTrip'}).length>0;
+  }
+  
+  isTripclosed():boolean{
+    if(this.record==null){
+      return false;
+    }
+  
+    return this.record.TripEvent.filter(function(e:any){return e.EventID=='FinishTrip'}).length>0;
+  
+  }
+
+  SaleDeliveryOnTripStatusChanged(selectedRow:any):void{
+
+    console.log(selectedRow)
+
+
+  }
+
 
   setLocation(EventID: string): void {
     var tripEvent: any = {};
