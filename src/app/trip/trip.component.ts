@@ -82,6 +82,40 @@ export class TripComponent implements OnInit, AfterViewChecked {
 
         })
     }
+
+    if (this.tripService.record && this.tripService.record.SaleDeliveryOnTripStatusID == this.id) {
+      this.record = this.tripService.record
+    }
+    else {
+
+      this.tripService.getTrip(this.id)
+        .subscribe(data => {
+          this.record = data;
+          this.tripService.getSaleDeliveryOnTripStatus().subscribe(data => { this.tripService.saleDeliveryOnTripStatusList = data }, function (error) {
+            alert("error");
+          })
+        }, function (error) {
+
+        })
+    }
+
+    if (this.tripService.record && this.tripService.record.saleDeliveryRejectReasonID == this.id) {
+      this.record = this.tripService.record
+    }
+    else {
+
+      this.tripService.getTrip(this.id)
+        .subscribe(data => {
+          this.record = data;
+          this.tripService.getSaleDeliveryRejectReason().subscribe(data => { this.tripService.saleDeliveryRejectReasonList = data }, function (error) {
+            alert("error");
+          })
+        }, function (error) {
+
+        })
+    }
+
+
   }
 
 isTripStarted():boolean{

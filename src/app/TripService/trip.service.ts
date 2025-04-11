@@ -14,6 +14,8 @@ export class TripService {
   // baseUrl: string = "https://ww1qmdpz-5004.brs.devtunnels.ms/";
   baseUrl: string="http://localhost:5004/"
   eventList: any = []
+  saleDeliveryOnTripStatusList: any=[]
+  saleDeliveryRejectReasonList: any=[]
 
 
   constructor(

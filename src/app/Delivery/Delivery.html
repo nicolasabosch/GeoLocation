@@ -1,5 +1,5 @@
 <div [hidden]="mapVisible">
-
+<!-- <pre>{{selectedRow | json}}</pre> -->
     <button type="button" class="btn btn-primary" style="float: right;" (click)="backToRecordList()">Back</button>
     <div class="row">
         <div class="col-sm-1 form-group">
@@ -67,15 +67,14 @@
             </label>
             
                 <select [(ngModel)]="selectedRow.SaleDeliveryOnTripStatusID" class="form-select" autocomplete="off"
-                    placeholder="Estado de entrega" name="txtSaleDeliveryOnTripStatusID" (change)="SaleDeliveryOnTripStatusChanged(selectedRow)">
+                    placeholder="Estado de entrega" name="txtSaleDeliveryOnTripStatusID" [hidden]="!isTripStarted() && isTripclosed() || !isTripStarted() && !isTripclosed()">
                     <option [ngValue]=undefined selected tlt> - Seleccione -</option>
                     <option [value]="T.SaleDeliveryOnTripStatusID"
                         *ngFor="let T of SaleDeliveryOnTripStatusList | filterValueByArray:'SaleDeliveryOnTripStatusID':['Delivered','Rejected','Observed','Returned']  | orderBy:'SaleDeliveryOnTripStatusName'">
                         {{ T.SaleDeliveryOnTripStatusName }}
                     </option>
                 </select>
-            
-
+                
         </div>
 
         <div class="col-sm-3 form-group" *ngIf="selectedRow.SaleDeliveryOnTripStatusID ==='Rejected'">
@@ -87,8 +86,8 @@
                 placeholder="Motivo rechazo" name="txtSaleDeliveryRejectReasonID">
                 <option [ngValue]=undefined selected tlt>- Seleccione -</option>
                 <option [value]="T.SaleDeliveryRejectReasonID"
-                    *ngFor="let T of SaleDeliveryRejectReasonList | orderBy:'SaleDeliveryRejectReasonName'">{{
-                    T.SaleDeliveryRejectReasonName }}
+                    *ngFor="let T of SaleDeliveryRejectReasonList | orderBy:'SaleDeliveryRejectReasonName'">
+                    {{T.SaleDeliveryRejectReasonName }}
                 </option>
 
             </select>
@@ -102,12 +101,11 @@
             <textarea class="form-control" [(ngModel)]="selectedRow.SaleDeliveryOnTripRemarks"
                 placeholder="Comentarios Entrega"></textarea>
 
-            <!-- <div disabled class="form-control" placeholder="Comentarios Entrega">
-                {{selectedRow.SaleDeliveryOnTripRemarks}}</div> -->
+            
         </div>
-        <!-- <button type="button" class="btn btn-success col-sm-2">Grabar</button> -->
+        <button type="button" class="btn btn-success col-sm-1" (click)="SaleDeliveryOnTripStatusChanged(selectedRow)">Grabar</button>
     </div>
-    <div style="width: 100%;" id="map" [hidden]="isTripStarted() && !isTripclosed()">
+    <div style="width: 100%;" id="map" [hidden]="!isTripStarted() && isTripclosed() || !isTripStarted() && !isTripclosed()">
 
         <pre *ngIf="record?.coords"></pre>
         <label for="myFile" class="btn btn-success">

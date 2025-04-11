@@ -6,7 +6,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { HttpClient, HttpErrorResponse, HttpEvent, HttpEventType, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { SafePipe } from '../common';
 import { GeolocationService } from '@ng-web-apis/geolocation';
-import { catchError, Observable, take, tap, throwError } from 'rxjs';
+import { catchError, Observable, sequenceEqual, take, tap, throwError } from 'rxjs';
 import { TripService } from '../TripService/trip.service';
 import { FilterPipe } from '../pipes/filter.pipe';
 import { OrderByPipe } from '../pipes/order-by.pipe';
@@ -78,6 +78,8 @@ export class DeliveryComponent implements AfterContentInit {
       return false;
     }
   
+    // console.log(this.record.TripEvent.filter(function(e:any){return e.EventID=='StartTrip'}).length > 0);
+    // console.log("Opened")
     return this.record.TripEvent.filter(function(e:any){return e.EventID=='StartTrip'}).length>0;
   }
   
@@ -86,14 +88,22 @@ export class DeliveryComponent implements AfterContentInit {
       return false;
     }
   
+    console.log(this.record.TripEvent.filter(function(e:any){return e.EventID=='FinishTrip'}).length>0);
+    console.log("Closed")
     return this.record.TripEvent.filter(function(e:any){return e.EventID=='FinishTrip'}).length>0;
   
   }
 
   SaleDeliveryOnTripStatusChanged(selectedRow:any):void{
 
-    console.log(selectedRow)
+    this.tripService.http.put(this.tripService.baseUrl + "Api/Trip", selectedRow).subscribe((data: any) => {
+      console.log(data);
+      selectedRow.SaleDeliveryOnTripStatusID = data.SaleDeliveryOnTripStatusID;
+      selectedRow.CreatedOn = data.CreatedOn;
+      this.record.Trip.push(selectedRow);
 
+    }, (err: any) => console.log(err));
+    console.log("aaa")
 
   }
 
