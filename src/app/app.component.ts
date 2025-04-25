@@ -5,6 +5,7 @@ import { CurrencyPipe, DatePipe, TitleCasePipe,JsonPipe } from '@angular/common'
 import { HttpClient, HttpErrorResponse, HttpEvent, HttpEventType, HttpHeaders, HttpResponse } from '@angular/common/http';
 import {HighlightModule} from 'ngx-highlightjs';
 import { FormsModule } from '@angular/forms';
+import { ToastrService, ToastrModule } from 'ngx-toastr';
 
 
 

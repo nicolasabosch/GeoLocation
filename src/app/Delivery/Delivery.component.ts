@@ -2,7 +2,7 @@ import { Component, OnInit, Input, AfterViewChecked, inject, ChangeDetectorRef, 
 import { ActivatedRoute, Router } from '@angular/router';
 import { CurrencyPipe, DatePipe, TitleCasePipe, JsonPipe, formatDate, NgFor, NgIf, NgStyle, PlatformLocation, CommonModule } from '@angular/common';
 import { FormsModule, NgModel } from '@angular/forms';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { bootstrapApplication, DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { HttpClient, HttpErrorResponse, HttpEvent, HttpEventType, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { SafePipe } from '../common';
 import { GeolocationService } from '@ng-web-apis/geolocation';
@@ -11,16 +11,24 @@ import { TripService } from '../TripService/trip.service';
 import { FilterPipe } from '../pipes/filter.pipe';
 import { OrderByPipe } from '../pipes/order-by.pipe';
 import { filterValueByArrayPipe } from "../pipes/filterValueByArray.pipe";
+import { provideToastr, ToastrModule, ToastrService } from 'ngx-toastr';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { AppComponent } from '../app.component';
 
 
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideAnimations(), // required animations providers
+    provideToastr(), // Toastr providers
+  ]
+});
 
 @Component({
   selector: 'app-Delivery',
   standalone: true,
-  imports: [JsonPipe, FormsModule, DatePipe, NgFor, NgIf, NgStyle, CurrencyPipe, SafePipe, FilterPipe, CommonModule, OrderByPipe, filterValueByArrayPipe],
+  imports: [JsonPipe, FormsModule, DatePipe, NgFor, NgIf, NgStyle, CurrencyPipe, SafePipe, FilterPipe, CommonModule, OrderByPipe, filterValueByArrayPipe, ToastrModule],
   templateUrl: './Delivery.html',
   styleUrl: './Delivery.component.css'
-
 })
 
 export class DeliveryComponent implements AfterContentInit {
@@ -37,6 +45,8 @@ export class DeliveryComponent implements AfterContentInit {
     private readonly changeDetectorRef: ChangeDetectorRef,
     public tripService: TripService,
     public location: PlatformLocation,
+    private toastr: ToastrService
+    
 
   ) { }
 
@@ -97,14 +107,13 @@ export class DeliveryComponent implements AfterContentInit {
   SaleDeliveryOnTripStatusChanged(selectedRow:any):void{
 
     this.tripService.http.put(this.tripService.baseUrl + "Api/Trip", selectedRow).subscribe((data: any) => {
-      console.log(data);
-      selectedRow.SaleDeliveryOnTripStatusID = data.SaleDeliveryOnTripStatusID;
-      selectedRow.CreatedOn = data.CreatedOn;
-      this.record.Trip.push(selectedRow);
+      this.toastr.success('Guardado', 'Bien', {
+        positionClass: 'toast-top-right',
+      });
+
 
     }, (err: any) => console.log(err));
-    console.log("aaa")
-
+    
   }
 
 

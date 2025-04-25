@@ -8,8 +8,8 @@ import { DeliveryComponent } from './Delivery/Delivery.component';
 
 export const routes: Routes = [
 
-    { path: '', component: GeoLocationComponent },
+    {path: '', component: GeoLocationComponent },
     {path: ':id', component: TripComponent},
-    {path:':id/:SaleDeliveryID', component: DeliveryComponent}
+    {path: ':id/:SaleDeliveryID', component: DeliveryComponent}
 
 ];

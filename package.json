@@ -26,6 +26,7 @@
     "bootstrap-icons": "^1.11.3",
     "leaflet": "^1.9.4",
     "ngx-highlightjs": "^12.0.0",
+    "ngx-toastr": "^19.0.0",
     "rxjs": "~7.8.0",
     "samples": "^0.0.2",
     "taiga-ui": "^4.16.0",
