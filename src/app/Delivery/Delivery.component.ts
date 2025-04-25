@@ -43,12 +43,12 @@ export class DeliveryComponent implements AfterContentInit {
   ngOnInit(): void {
     //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
     //Add 'implements OnInit' to the class.
-    this.tripService.getSaleDeliveryOnTripStatus()
+    this.tripService.getSaleDeliveryOnTripStatusList()
       .subscribe(data => {
         this.SaleDeliveryOnTripStatusList = data;
       });
 
-      this.tripService.getSaleDeliveryRejectReason()
+      this.tripService.getSaleDeliveryRejectReasonList()
       .subscribe(data => {
         this.SaleDeliveryRejectReasonList = data;
       });

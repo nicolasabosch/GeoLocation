@@ -27,11 +27,11 @@ export class TripService {
   getTrip(tripID: any): Observable<any> {
     return this.http.get(this.baseUrl + "Api/Trip/" + tripID)
   }
-  getSaleDeliveryRejectReason(): Observable<any> {
+  getSaleDeliveryRejectReasonList(): Observable<any> {
     return this.http.get(this.baseUrl + "Api/SaleDeliveryRejectReason")
   }
 
-  getSaleDeliveryOnTripStatus(): Observable<any> {
+  getSaleDeliveryOnTripStatusList(): Observable<any> {
     return this.http.get(this.baseUrl + "Api/SaleDeliveryOnTripStatus")
   }
 

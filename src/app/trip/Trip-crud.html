@@ -1,4 +1,5 @@
 <div [hidden]="mapVisible">
+    
     <div class="container" *ngIf="record">
         <div *ngIf="!this.selectedRow">
             <div class="row">
@@ -93,8 +94,7 @@
                             <th tlt>Cliente</th>
                             <th *ngIf="record.TripTypeID =='Customer'" tlt="Dirección">Direccion</th>
                             <th *ngIf="record.TripTypeID =='Customer'" tlt="Zona">Zona</th>
-                            <th *ngIf="record.TripTypeID =='Customer'" tlt="Instrucciones de Entrega">Instrucciones de
-                                Entrega</th>
+                            <th *ngIf="record.TripTypeID =='Customer'" tlt="Instrucciones de Entrega">Instrucciones de Entrega</th>
                             <th tlt *ngIf="record.TripStatusID==='Completed'">Comentarios logistica</th>
                             <th tlt>Resultado</th>
                             <th tlt>Bultos</th>
@@ -127,10 +127,10 @@
                             <td *ngIf="record.TripTypeID =='Customer'">{{r.DeliveryInstruction}} </td>
                             <td>{{r.SaleDeliveryDeliveryRemarks}}</td>
                             <td *ngIf="record.TripStatusID==='Completed'">
-
-                        <p disabled>{{(tripService?.saleDeliveryOnTripStatusList | filter:'SaleDeliveryOnTripStatusID':r.SaleDeliveryOnTripStatusID)[0].SaleDeliveryOnTripStatusName}}</p>
-                        <p disabled>{{(tripService?.saleDeliveryRejectReasonList | filter:'SaleDeliveryRejectReasonID':r.SaleDeliveryRejectReasonID)[0].SaleDeliveryRejectReasonName}}</p>
-                        <p disabled>{{r.SaleDeliveryOnTripRemarks}}</p>
+                            
+                        <p disabled>{{(tripService?.saleDeliveryOnTripStatusList | filter:'SaleDeliveryOnTripStatusID':r.SaleDeliveryOnTripStatusID)[0]?.SaleDeliveryOnTripStatusName}}</p>
+                        <p disabled>{{(tripService?.saleDeliveryRejectReasonList | filter:'SaleDeliveryRejectReasonID':r.SaleDeliveryRejectReasonID)[0]?.SaleDeliveryRejectReasonName}}</p>
+                            <p disabled>{{r.SaleDeliveryOnTripRemarks}}</p>
                             </td>
                             <td style="text-align:right">{{r.Units | number :'1.2-2'}} </td>
                             <td style="text-align:right">{{r.Meters | number:'1.2-2'}} </td>
@@ -153,67 +153,24 @@
                                     {{r.CarrierAddress}} {{r.CarrierPhone}}
                                 </div>
                             </td>
-                            <td *ngIf="record.TripTypeID =='Customer'"
+                           <td *ngIf="record.TripTypeID =='Customer'"
                                 [ngStyle]="(r.DeliveryZoneID !== record.DeliveryZoneID  && {'color':'white','background-color':'red','font-weight':'bold'})">
                                 {{r.DeliveryZoneName}} </td>
                             <td *ngIf="record.TripTypeID =='Customer'">{{r.DeliveryInstruction}} </td>
-                            <td><textarea disabled [(ngModel)]="r.SaleDeliveryDeliveryRemarks"
-                                    [name]="'SaleDeliveryDeliveryRemarksj' + j" class="form-control"></textarea></td>
+                            <td>{{r.SaleDeliveryDeliveryRemarks}}</td>
                             <td *ngIf="record.TripStatusID==='Completed'">
 
-                                <p disabled>{{(tripService?.saleDeliveryOnTripStatusList | filter:'SaleDeliveryOnTripStatusID':r.SaleDeliveryOnTripStatusID)[0].SaleDeliveryOnTripStatusName}}</p>
-                                <p disabled>{{(tripService?.saleDeliveryRejectReasonList | filter:'SaleDeliveryRejectReasonID':r.SaleDeliveryRejectReasonID)[0].SaleDeliveryRejectReasonName}}</p>
+                                <p disabled>{{(tripService?.saleDeliveryOnTripStatusList | filter:'SaleDeliveryOnTripStatusID':r.SaleDeliveryOnTripStatusID)[0]?.SaleDeliveryOnTripStatusName}}</p>
+                                <p disabled>{{(tripService?.saleDeliveryRejectReasonList | filter:'SaleDeliveryRejectReasonID':r.SaleDeliveryRejectReasonID)[0]?.SaleDeliveryRejectReasonName}}</p>
 
-                                <div disabled class="form-control" placeholder="Comentarios Entrega">
-                                    {{r.SaleDeliveryOnTripRemarks}}</div>
+                                <p readonly>{{r.SaleDeliveryOnTripRemarks}}</p>
                             </td>
                             <td style="text-align:right">{{r.Units | number :'1.2-2'}} </td>
                             <td style="text-align:right">{{r.Meters | number:'1.2-2'}} </td>
                             <td style="text-align:right">{{r.Kilos | number:'1.2-2'}} </td>
                             <td style="text-align:right">{{r.Pieces | number:'1.2-2'}} </td>
                         </tr>
-                        <!-- <tr *ngFor="let r of record.TripSaleRetail; let h=index" (click)="viewRecord(r)">
-
                         
-                            <td>{{r.SourceName}} </td>
-                            <td style="text-align:right; font-weight:bold">{{r.SaleDeliveryNumber}} </td>
-                            <td style="text-align:right">{{r.SaleOrderNumber}} </td>
-                            <td>{{r.SaleRepresentativeName}} </td>
-                            <td>{{r.CustomerName}} </td>
-                            <td *ngIf="record.TripTypeID =='Customer'">
-                                <div>
-                                    {{r.Address}} {{r.DistrictName}} ({{r.ZipCode}}) {{r.StateName}}
-                                </div>
-                                <div [hidden]="!(record.TripTypeID =='Customer' && record.DeliveryZoneID ==='Expreso')">
-                                    <strong>{{r.CarrierName}}</strong><br />
-                                    {{r.CarrierAddress}} {{r.CarrierPhone}}
-                                </div>
-                            </td>
-                            <td *ngIf="record.TripTypeID =='Customer'"
-                                [ngStyle]="(r.DeliveryZoneID !== record.DeliveryZoneID  && {'color':'white','background-color':'red','font-weight':'bold'})">
-                                {{r.DeliveryZoneName}} </td>
-                            <td *ngIf="record.TripTypeID =='Customer'">{{r.DeliveryInstruction}} </td>
-                            <td>
-                                <div disabled {{r.SaleDeliveryDeliveryRemarks}} class="form-control"></div>
-                            </td>
-                            <td *ngIf="record.TripStatusID==='Completed'">
-
-                                <select disabled [(ngModel)]="r.SaleDeliveryOnTripStatusID"
-                                    [name]="'SaleDeliveryOnTripStatusIDh' + h" class="form-control" autocomplete="off"
-                                    ng-options="T.SaleDeliveryOnTripStatusID as T.SaleDeliveryOnTripStatusName for T in SaleDeliveryOnTripStatusList | filterValueByArray:'SaleDeliveryOnTripStatusID':['Delivered','Rejected','Observed','Returned'] | orderBy:'SaleDeliveryOnTripStatusName'"
-                                    placeholder="Resultado" id="txtSaleDeliveryOnTripStatusID"></select>
-                                <select [(ngModel)]="r.SaleDeliveryRejectReasonID"
-                                    [name]="'SaleDeliveryDeliveryRemarksh' + h" class="form-control" autocomplete="off"
-                                    *ngIf="r.SaleDeliveryOnTripStatusID ==='Rejected'" disabled
-                                    ng-options="T.SaleDeliveryRejectReasonID as T.SaleDeliveryRejectReasonName for T in SaleDeliveryRejectReasonList | orderBy:'SaleDeliveryRejectReasonName'"
-                                    placeholder="Motivo de Rechazo" id="txtSaleDeliveryRejectReasonID">
-                                    <option value=''>- Motivo Rechazo ? -</option>
-                                </select>
-
-                                <div {{r.SaleDeliveryOnTripRemarks}} disabled class="form-control"
-                                    placeholder="Comentarios Entrega"></div>
-                            </td>
-                        </tr> -->
 
                         <tr *ngFor="let r of record.TripSaleRetail; let u=index" (click)="viewRecord(r)">
                             <td>{{r.SourceName}} </td>
@@ -234,12 +191,11 @@
                                 [ngStyle]="(r.DeliveryZoneID !== record.DeliveryZoneID  && {'color':'white','background-color':'red','font-weight':'bold'})">
                                 {{r.DeliveryZoneName}} </td>
                             <td *ngIf="record.TripTypeID =='Customer'">{{r.DeliveryInstruction}} </td>
-                            <td><textarea disabled [(ngModel)]="r.SaleDeliveryDeliveryRemarks"
-                                    [name]="'SaleDeliveryDeliveryRemarksu' + u" class="form-control"></textarea></td>
+                            <td>{{r.SaleDeliveryDeliveryRemarks}}</td>
                             <td *ngIf="record.TripStatusID==='Completed'">
 
-                        <p disabled>{{(tripService?.saleDeliveryOnTripStatusList | filter:'SaleDeliveryOnTripStatusID':r.SaleDeliveryOnTripStatusID)[0].SaleDeliveryOnTripStatusName}}</p>
-                        <p disabled>{{(tripService?.saleDeliveryRejectReasonList | filter:'SaleDeliveryRejectReasonID':r.SaleDeliveryRejectReasonID)[0].SaleDeliveryRejectReasonName}}</p>
+                        <p disabled>{{(tripService?.saleDeliveryOnTripStatusList | filter:'SaleDeliveryOnTripStatusID':r.SaleDeliveryOnTripStatusID)[0]?.SaleDeliveryOnTripStatusName}}</p>
+                        <p disabled>{{(tripService?.saleDeliveryRejectReasonList | filter:'SaleDeliveryRejectReasonID':r.SaleDeliveryRejectReasonID)[0]?.SaleDeliveryRejectReasonName}}</p>
 
                                 <div disabled class="form-control" placeholder="Comentarios Entrega">
                                     {{r.SaleDeliveryOnTripRemarks}}</div>
@@ -332,8 +288,8 @@
                         <option value=''>- Motivo Rechazo ? -</option>
                     </select>
 
-                    <div disabled class="form-control" placeholder="Comentarios Entrega">
-                        {{selectedRow.SaleDeliveryOnTripRemarks}}</div>
+                    <textarea readonly class="form-control" placeholder="Comentarios Entrega">
+                        {{selectedRow.SaleDeliveryOnTripRemarks}}</textarea>
                 </div>
             </div>
             <div style="width: 100%;" id="map">

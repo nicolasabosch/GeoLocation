@@ -91,7 +91,7 @@ export class TripComponent implements OnInit, AfterViewChecked {
       this.tripService.getTrip(this.id)
         .subscribe(data => {
           this.record = data;
-          this.tripService.getSaleDeliveryOnTripStatus().subscribe(data => { this.tripService.saleDeliveryOnTripStatusList = data }, function (error) {
+          this.tripService.getSaleDeliveryOnTripStatusList().subscribe(data => { this.tripService.saleDeliveryOnTripStatusList = data }, function (error) {
             alert("error");
           })
         }, function (error) {
@@ -107,7 +107,7 @@ export class TripComponent implements OnInit, AfterViewChecked {
       this.tripService.getTrip(this.id)
         .subscribe(data => {
           this.record = data;
-          this.tripService.getSaleDeliveryRejectReason().subscribe(data => { this.tripService.saleDeliveryRejectReasonList = data }, function (error) {
+          this.tripService.getSaleDeliveryRejectReasonList().subscribe(data => { this.tripService.saleDeliveryRejectReasonList = data }, function (error) {
             alert("error");
           })
         }, function (error) {
