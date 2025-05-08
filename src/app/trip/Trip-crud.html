@@ -1,3 +1,5 @@
+
+<div [hidden]="!locationEnabled">
 <div [hidden]="mapVisible">
     
     <div class="container" *ngIf="record">
@@ -356,3 +358,5 @@
     marginwidth="0" [src]="currentPositionUrl" [hidden]="!mapVisible"></iframe>
 <button class="button" style="position: absolute;top: 0px; left:400px;" (click)="closeMap()"
     [hidden]="!mapVisible">X</button>
+
+</div>

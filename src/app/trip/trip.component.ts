@@ -34,7 +34,7 @@ export class TripComponent implements OnInit, AfterViewChecked {
   currentPositionUrl: SafeResourceUrl | null = null;
   mapVisible: boolean = false;
   pictureVisible: boolean = false;
-
+  locationEnabled: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -114,6 +114,14 @@ export class TripComponent implements OnInit, AfterViewChecked {
 
         })
     }
+
+    this.tripService.getLocation().subscribe((position: GeolocationPosition) => {
+      this.locationEnabled = true;
+      console.log(navigator.geolocation)
+    }, (error: any) => {
+      alert('Error obteniendo ubicacion, porfavor vertifica si esta activada en tu celular y los permisos concedidos en tu navegador' + error.message)
+      this.locationEnabled = false;
+    });
 
 
   }
