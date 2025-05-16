@@ -17,19 +17,19 @@
                     </label>
                     <div class="form-control disabled">{{record.TripDate | date:'dd/MM/yyyy'}}</div>
                 </div>
-                <div class="col-sm-2 col-5 form-group">
+                <div class="col-sm-3 col-5 form-group">
                     <label for="txtWarehouseGroupID" tlt>
                         Deposito Salida
                     </label>
                     <div class="form-control disabled">{{record.WarehouseGroupID}}</div>
                 </div>
-                <div class="col-sm-2 form-group">
+                <div class="col-6 col-sm-2 form-group">
                     <label for="txtTripStatusName" tlt>
                         Estado
                     </label>
                     <div class="form-control disabled">{{record.TripStatusName}}</div>
                 </div>
-                <div class="col-sm-2 form-group">
+                <div class="col-6 col-sm-2 form-group">
                     <label for="txtTripTypeName" tlt>
                         Tipo
                     </label>
@@ -41,25 +41,25 @@
                     </label>
                     <div class="form-control disabled">{{record.DeliveryZoneName}}</div>
                 </div>
-                <div class="col-sm-2 form-group">
+                <div class="col-6 col-sm-2 form-group">
                     <label for="txtFreightName" tlt>
                         Empresa Flete
                     </label>
                     <div class="form-control disabled">{{record.FreightName}}</div>
                 </div>
-                <div class="col-sm-2 form-group">
+                <div class="col-6 col-sm-2 form-group">
                     <label for="txtVehicleTypeName" tlt>
                         Tipo Vehiculo
                     </label>
                     <div class="form-control disabled">{{record.VehicleTypeName}}</div>
                 </div>
-                <div class="col-sm-2 form-group">
+                <div class="col-6 col-sm-2 form-group">
                     <label for="txtDriverName" tlt>
                         Conductor
                     </label>
                     <div class="form-control disabled">{{record.DriverName}}</div>
                 </div>
-                <div class="col-sm-1 form-group">
+                <div class="col-6 col-sm-2 form-group">
                     <label for="txtPlateName" tlt>
                         Chapa
                     </label>
@@ -76,9 +76,6 @@
                     class="btn btn-danger">Finalizar el viaje</button>
 
                 
-                    <label for="myFile" class="btn btn-success" style="float: right;">
-                        <i class="fas fa-upload"></i>&nbsp;&nbsp;<span tlt>Subir Archivo</span>
-                    </label>
                     <input class="btn btn-success" type="file" id="myFile" name="filename" accept="image/*"
                         (change)="takePicture($event,record,'FileID')" capture style="visibility: hidden;">
                         
@@ -212,8 +209,10 @@
                 </table>
             </div>
         </div>
+         <label for="myFile" class="btn btn-success">
+                        <i class="fas fa-upload"></i>&nbsp;&nbsp;<span tlt>Foto en viaje</span>
+                    </label>
         <div *ngIf="this.selectedRow">
-
             <button type="button" class="btn btn-primary" style="float: right;"
                 (click)="backToRecordList()">Back</button>
             <div class="row">

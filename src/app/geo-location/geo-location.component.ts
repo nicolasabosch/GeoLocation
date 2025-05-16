@@ -22,8 +22,8 @@ export class GeoLocationComponent implements AfterViewChecked {
   Latitud: any;
   Longitud: any;
   url: string = "";
-  // baseUrl: string = "https://ww1qmdpz-5004.brs.devtunnels.ms/";
-  baseUrl: string="http://localhost:5004/"
+  baseUrl: string = "https://szc3r859-5004.brs.devtunnels.ms/";
+  //baseUrl: string="http://localhost:5004/"
 
   inputFile: HTMLInputElement | undefined;
   geolocation: GeolocationService

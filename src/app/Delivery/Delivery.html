@@ -1,37 +1,51 @@
 <div [hidden]="mapVisible">
-    <button type="button" class="btn btn-primary" style="float: right;" (click)="backToRecordList()">Back</button>
-    <div class="row">
-        <div class="col-sm-1 form-group">
+    <div class="row" style="padding: 0xp ; margin:0px ">
+        <div>
+            <button type="button" class="btn btn-primary col-2 col-sm-1" (click)="backToRecordList()">Volver</button>
+        </div>
+        <div class="col-6 col-sm-2 form-group">
             <label for="txtTripID" tlt>
                 Origen
             </label>
             <div class="form-control disabled">{{selectedRow.SourceName}}</div>
         </div>
-        <div class="col-sm-1 form-group">
+        <div class="col-6 col-sm-2 form-group">
             <label for="txtTripDate" tlt>
                 Envio
             </label>
             <div class="form-control disabled">{{selectedRow.SaleDeliveryNumber}}</div>
         </div>
-        <div class="col-sm-1 form-group">
+        <div class="col-6 col-sm-2 form-group">
             <label for="txtTripStatusName" tlt>
                 Pedido
             </label>
             <div class="form-control disabled">{{selectedRow.SaleOrderNumber}}</div>
         </div>
-        <div class="col-sm-1 form-group">
+        <div class="col-6 col-sm-2 form-group">
+            <label for="txtTripNumber" tlt>
+                Viaje N°
+            </label>
+            <div class="form-control disabled">{{selectedRow.TripID}}</div>
+        </div>
+        <div class="col-6 col-sm-2 form-group">
+            <label for="txtTripDate" tlt>
+                Fecha
+            </label>
+            <div class="form-control disabled">{{selectedRow.DeliveryDate | date:'dd/MM/yyyy'}}</div>
+        </div>
+        <div class="col-6 col-sm-2 form-group">
             <label for="txtTripTypeName" tlt>
                 Vendedor
             </label>
             <div class="form-control disabled">{{selectedRow.SaleRepresentativeName}}</div>
         </div>
-        <div class="col-sm-5 form-group">
+        <div class="col-6 col-sm-2 form-group">
             <label for="txtDeliveryZoneName" tlt>
                 Cliente
             </label>
             <div class="form-control disabled">{{selectedRow.CustomerName}}</div>
         </div>
-        <div class="col-sm-2 form-group" *ngIf="record.TripTypeID =='Customer'">
+        <div class="col-6 col-sm-4 form-group" *ngIf="record.TripTypeID =='Customer'">
             <label for="txtWarehouseGroupID" tlt>
                 Dirección
             </label>
@@ -46,21 +60,19 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-2 form-group">
+        <div class="col-6 col-sm-2 form-group">
             <label for="txtFreightName" tlt>
                 Zona
             </label>
             <div class="form-control disabled">{{selectedRow.DeliveryZoneName}}</div>
         </div>
-        <div class="col-sm-3 form-group">
+        <div class="col-12 form-group">
             <label for="txtVehicleTypeName" tlt>
                 Instrucciones de entrega
             </label>
             <div class="form-control disabled">{{selectedRow.DeliveryInstruction}}</div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-2 form-group">
+        <div class="col-6 col-sm-2 form-group">
             <label for="txtWarehouseID" tlt>
                 Estado de entrega
             </label>
@@ -76,7 +88,6 @@
             </select>
 
         </div>
-
         <div class="col-sm-3 form-group" *ngIf="selectedRow.SaleDeliveryOnTripStatusID ==='Rejected'">
             <label for="txtWarehouseID" tlt>
                 Motivo rechazo
@@ -90,42 +101,47 @@
                     {{T.SaleDeliveryRejectReasonName }}
                 </option>
             </select>
-
         </div>
 
-        <div class="col-sm-2 form-group">
+        <div class="col-12 form-group">
             <label for="txtDriverName" tlt>
-                Comentarios logistica
+                Comentarios transportista
             </label>
             <textarea class="form-control" [(ngModel)]="selectedRow.SaleDeliveryOnTripRemarks"
                 placeholder="Comentarios Entrega"></textarea>
         </div>
-        <div class="col-sm-5 form-group">
-            <button  style="margin-top: 25px; margin-bottom: 25px;" type="button" class="btn btn-success"
-                (click)="SaleDeliveryOnTripStatusChanged(selectedRow)">Grabar</button>
-        </div>
     </div>
-    <div style="width: 100%;" id="map"
+    <div class="row" style="padding: 0xp ; margin:0px ; margin-top: 25px; margin-bottom: 25px;">
+
+        <div class="col-6 form-group">
+            <button type="button" class="btn btn-success" (click)="SaleDeliveryOnTripStatusChanged(selectedRow)">Grabar
+                cambios</button>
+        </div>
+        <div class="col-6 form-group">
+            <label for="myFile" class="btn btn-success">
+                <i class="fas fa-upload"></i>&nbsp;&nbsp;<span tlt>Foto en destino</span>
+            </label>
+            <input class="btn btn-success col-6" type="file" id="myFile" name="filename" accept="image/*"
+                (change)="takePicture($event,record,'FileID')" capture style="visibility: hidden;">
+        </div>
+
+    </div>
+    <div style="width: 100%; padding-left: 12px;" class="row" id="map"
         [hidden]="!isTripStarted() && isTripclosed() || !isTripStarted() && !isTripclosed()">
 
-        <pre *ngIf="record?.coords"></pre>
-        <label for="myFile" class="btn btn-success">
-            <i class="fas fa-upload"></i>&nbsp;&nbsp;<span tlt>Subir Archivo</span>
-        </label>
-        <input class="btn btn-success" type="file" id="myFile" name="filename" accept="image/*"
-            (change)="takePicture($event,record,'FileID')" capture style="visibility: hidden;">
 
-        <button type="button" class="btn btn-info" (click)="setLocation('ArrivedToDestination')">Llegada a
+
+        <button type="button" class="btn btn-info col-6" (click)="setLocation('ArrivedToDestination')">Llegada a
             destino</button>
-        <button type="button" class="btn btn-info" (click)="setLocation('LeftFromDestination')">Salida del
+        <button type="button" class="btn btn-info col-6" (click)="setLocation('LeftFromDestination')">Salida del
             destino</button>
 
-        <canvas id="canvaid" [hidden]="!pictureVisible"
-            style="max-width: 1000px; max-height: 1000px; border: solid 1px blue;"></canvas>
+        <!-- <canvas id="canvaid" [hidden]="!pictureVisible"
+            style="max-width: 1000px; max-height: 1000px; border: solid 1px blue;"></canvas> -->
 
     </div>
 </div>
-<div class="table-responsive" [hidden]="mapVisible">
+<div class="table-responsive" [hidden]="mapVisible" style="padding-left: 12px; padding-right: 12px;">
     <table class="table table-bordered  table-sm">
         <thead class="thead-dark">
             <tr>
