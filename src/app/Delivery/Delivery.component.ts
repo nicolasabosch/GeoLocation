@@ -92,6 +92,24 @@ export class DeliveryComponent implements AfterContentInit {
     // console.log("Opened")
     return this.record.TripEvent.filter(function(e:any){return e.EventID=='StartTrip'}).length>0;
   }
+
+
+  isDeliveryInDestination():boolean{
+
+  if(this.record==null){
+    return false;
+  }
+  return this.record.TripEvent.filter(function(e:any){return e.EventID=='ArrivedToDestination'}).length>0;
+}
+
+isNotDeliveryInDestination():boolean{
+
+  if(this.record==null){
+    return false;
+  }
+  return this.record.TripEvent.filter(function(e:any){return e.EventID=='LeftFromDestination'}).length>0;
+}
+
   
   isTripclosed():boolean{
     if(this.record==null){

@@ -198,7 +198,6 @@ public async takePicture(event: any, model: any, fieldName: string) {
 
 }
 
-
   setLocation(EventID: string, SaleDeliveryID:string, SourceID: string): void {
     var tripEvent: any = {};
 
@@ -237,6 +236,7 @@ public async takePicture(event: any, model: any, fieldName: string) {
     }
 
     this.tripService.record = this.record
+    
     this.router.navigate([this.location.pathname, r.SaleDeliveryID], {
       relativeTo: this.route,
     });

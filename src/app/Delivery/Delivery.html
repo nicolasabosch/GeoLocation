@@ -1,7 +1,16 @@
 <div [hidden]="mapVisible">
     <div class="row" style="padding: 0xp ; margin:0px ">
-        <div>
-            <button type="button" class="btn btn-primary col-2 col-sm-1" (click)="backToRecordList()">Volver</button>
+
+        <div style="margin-top: 10px;background-color: white;" class="row sticky-top">
+            <button type="button" class="btn btn-primary col-3 col-sm-1"
+                style="height: min-content; align-self: end; margin-left: 12px;"
+                (click)="backToRecordList()">Volver</button>
+            <div class="col-6 col-sm-2 form-group">
+                <label for="txtTripNumber" tlt>
+                    Viaje N°
+                </label>
+                <div class="form-control disabled">{{selectedRow.TripID}}</div>
+            </div>
         </div>
         <div class="col-6 col-sm-2 form-group">
             <label for="txtTripID" tlt>
@@ -21,18 +30,27 @@
             </label>
             <div class="form-control disabled">{{selectedRow.SaleOrderNumber}}</div>
         </div>
+
+
         <div class="col-6 col-sm-2 form-group">
-            <label for="txtTripNumber" tlt>
-                Viaje N°
+            <label for="txtTripDate" tlt>
+                Unidades
             </label>
-            <div class="form-control disabled">{{selectedRow.TripID}}</div>
+            <div class="form-control disabled">{{selectedRow.Units | number:'1.2-2'}}</div>
         </div>
         <div class="col-6 col-sm-2 form-group">
             <label for="txtTripDate" tlt>
-                Fecha
+                Kilos
             </label>
-            <div class="form-control disabled">{{selectedRow.DeliveryDate | date:'dd/MM/yyyy'}}</div>
+            <div class="form-control disabled">{{selectedRow.Kilos | number:'1.2-2'}}</div>
         </div>
+        <div class="col-6 col-sm-2 form-group">
+            <label for="txtTripDate" tlt>
+                Metros
+            </label>
+            <div class="form-control disabled">{{selectedRow.Meters | number:'1.2-2'}}</div>
+        </div>
+
         <div class="col-6 col-sm-2 form-group">
             <label for="txtTripTypeName" tlt>
                 Vendedor
@@ -126,62 +144,69 @@
         </div>
 
     </div>
-    <div style="width: 100%; padding-left: 12px;" class="row" id="map"
-        [hidden]="!isTripStarted() && isTripclosed() || !isTripStarted() && !isTripclosed()">
+    <div class="container">
+        <div class="row justify-content-center" id="map"
+            [hidden]="!isTripStarted() && isTripclosed() || !isTripStarted() && !isTripclosed()">
+            <div class="col-12 text-center">
+                <button type="button" class="btn btn-info col-6 col-md-4" (click)="setLocation('ArrivedToDestination')"
+                    *ngIf="!isDeliveryInDestination()">Llegada a destino</button>
+                <button type="button" class="btn btn-info col-6 col-md-4" (click)="setLocation('LeftFromDestination')"
+                    *ngIf="isDeliveryInDestination() && !isNotDeliveryInDestination()">Salida del destino</button>
+            </div>
 
+            <canvas id="canvaid" [hidden]="!pictureVisible"
+            style="max-width: 1000px; max-height: 1000px; border: solid 1px blue;"></canvas>
 
+        </div>
+    </div>
+    <div class="table-responsive" [hidden]="mapVisible" style="padding-left: 12px; padding-right: 12px;">
+        <table class="table table-bordered  table-sm">
+            <thead class="table-dark">
+                <tr>
+                    <th tlt>Evento</th>
+                    <th tlt>Ubicación</th>
+                    <th tlt>Foto</th>
+                    <th tlt>Creado el</th>
 
-        <button type="button" class="btn btn-info col-6" (click)="setLocation('ArrivedToDestination')">Llegada a
-            destino</button>
-        <button type="button" class="btn btn-info col-6" (click)="setLocation('LeftFromDestination')">Salida del
-            destino</button>
+                </tr>
+            </thead>
+            <tbody>
+                <tr
+                    *ngFor="let r of record.TripEvent | filter:{'SaleDeliveryID':selectedRow.SaleDeliveryID} | orderBy:'-CreatedOn'; let index=index">
+                    <td>{{(tripService.eventList | filter:'EventID':r.EventID)[0].EventName}}</td>
+                    <td class="col-sm-1">
+                        <label for="Location" class="btn btn-dark">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </label>
+                        <button class="btn btn-dark" id="Location" (click)="viewPosition(r)"
+                            style="visibility: hidden;"></button>
+                    </td>
+                    <td class="col-sm-2">
+                        <div>
+                            <a target="_blank" href="{{tripService.baseUrl}}Api/file/{{r.FileID}}"
+                                *ngIf="r.Preview===false">
+                                {{r.FileName}}
+                            </a>
+                            <a target="_blank" href="{{tripService.baseUrl}}Api/file/{{r.FileID}}"
+                                *ngIf="r.Preview===true">
+                                <img src="{{tripService.baseUrl}}Api/File/GetThumbnailFile/{{r.FileID}}"
+                                    *ngIf="r.Preview===true" />
+                            </a>
+                        </div>
+                    </td>
+                    <td>{{r.CreatedOn | date:'dd/MM/yyyy HH:mm'}} </td>
+                </tr>
+            </tbody>
 
-        <!-- <canvas id="canvaid" [hidden]="!pictureVisible"
-            style="max-width: 1000px; max-height: 1000px; border: solid 1px blue;"></canvas> -->
-
+        </table>
     </div>
 </div>
-<div class="table-responsive" [hidden]="mapVisible" style="padding-left: 12px; padding-right: 12px;">
-    <table class="table table-bordered  table-sm">
-        <thead class="thead-dark">
-            <tr>
-                <th tlt>Evento</th>
-                <th tlt>Ubicación</th>
-                <th tlt>Foto</th>
-                <th tlt>Creado el</th>
-
-            </tr>
-        </thead>
-        <tbody>
-            <tr
-                *ngFor="let r of record.TripEvent | filter:{'SaleDeliveryID':selectedRow.SaleDeliveryID} | orderBy:'-CreatedOn'; let index=index">
-                <td>{{(tripService.eventList | filter:'EventID':r.EventID)[0].EventName}}</td>
-                <td class="col-sm-1">
-                    <label for="Location" class="btn btn-dark">
-                        <i class="fa-solid fa-location-dot"></i>
-                    </label>
-                    <button class="btn btn-dark" id="Location" (click)="viewPosition(r)"
-                        style="visibility: hidden;"></button>
-                </td>
-                <td class="col-sm-2">
-                    <div>
-                        <a target="_blank" href="{{tripService.baseUrl}}Api/file/{{r.FileID}}"
-                            *ngIf="r.Preview===false">
-                            {{r.FileName}}
-                        </a>
-                        <a target="_blank" href="{{tripService.baseUrl}}Api/file/{{r.FileID}}" *ngIf="r.Preview===true">
-                            <img src="{{tripService.baseUrl}}Api/File/GetThumbnailFile/{{r.FileID}}"
-                                *ngIf="r.Preview===true" />
-                        </a>
-                    </div>
-                </td>
-                <td>{{r.CreatedOn | date:'dd/MM/yyyy HH:mm'}} </td>
-            </tr>
-        </tbody>
-
-    </table>
+<div>
+    <div>
+        <iframe *ngIf="!!currentPositionUrl" width="425" height="350" frameborder="0" scrolling="no" marginheight="0"
+            marginwidth="0" [src]="currentPositionUrl" [hidden]="!mapVisible"></iframe>
+        <div class="row col-12">
+            <button class="row btn btn-success" [hidden]="!mapVisible" (click)="closeMap()">Aceptar</button>
+        </div>
+    </div>
 </div>
-<iframe *ngIf="!!currentPositionUrl" width="425" height="350" frameborder="0" scrolling="no" marginheight="0"
-    marginwidth="0" [src]="currentPositionUrl" [hidden]="!mapVisible"></iframe>
-<button class="button" style="position: absolute;top: 0px; left:400px;" (click)="closeMap()"
-    [hidden]="!mapVisible">X</button>
