@@ -13,3 +13,6 @@ export const routes: Routes = [
     {path: ':id/:SaleDeliveryID', component: DeliveryComponent}
 
 ];
+
+
+

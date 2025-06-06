@@ -1,12 +1,7 @@
 import { Component, OnInit, Input, AfterViewChecked, inject, ChangeDetectorRef, AfterContentInit, NgModule } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
 import { CurrencyPipe, DatePipe, TitleCasePipe, JsonPipe, formatDate, NgFor, NgIf, NgStyle, PlatformLocation, CommonModule } from '@angular/common';
 import { FormsModule, NgModel } from '@angular/forms';
 import { bootstrapApplication, DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { HttpClient, HttpErrorResponse, HttpEvent, HttpEventType, HttpHeaders, HttpResponse } from '@angular/common/http';
-import { SafePipe } from '../common';
-import { GeolocationService } from '@ng-web-apis/geolocation';
-import { catchError, Observable, sequenceEqual, take, tap, throwError } from 'rxjs';
 import { TripService } from '../TripService/trip.service';
 import { FilterPipe } from '../pipes/filter.pipe';
 import { OrderByPipe } from '../pipes/order-by.pipe';
@@ -14,19 +9,22 @@ import { filterValueByArrayPipe } from "../pipes/filterValueByArray.pipe";
 import { provideToastr, ToastrModule, ToastrService } from 'ngx-toastr';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { AppComponent } from '../app.component';
+import { HttpClientModule } from '@angular/common/http';
+import { importProvidersFrom } from '@angular/core';
 
 
 bootstrapApplication(AppComponent, {
   providers: [
     provideAnimations(), // required animations providers
     provideToastr(), // Toastr providers
+    importProvidersFrom(HttpClientModule), // <-- Add this line
   ]
 });
 
 @Component({
   selector: 'app-Delivery',
   standalone: true,
-  imports: [JsonPipe, FormsModule, DatePipe, NgFor, NgIf, NgStyle, CurrencyPipe, SafePipe, FilterPipe, CommonModule, OrderByPipe, filterValueByArrayPipe, ToastrModule],
+  imports: [FormsModule, DatePipe, NgFor, NgIf, FilterPipe, CommonModule, OrderByPipe, filterValueByArrayPipe, ToastrModule],
   templateUrl: './Delivery.html',
   styleUrl: './Delivery.component.css'
 })
@@ -45,7 +43,8 @@ export class DeliveryComponent implements AfterContentInit {
     private readonly changeDetectorRef: ChangeDetectorRef,
     public tripService: TripService,
     public location: PlatformLocation,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    
     
 
   ) { }
@@ -99,7 +98,7 @@ export class DeliveryComponent implements AfterContentInit {
   if(this.record==null){
     return false;
   }
-  return this.record.TripEvent.filter(function(e:any){return e.EventID=='ArrivedToDestination'}).length>0;
+  return this.record.TripEvent.filter((e:any) =>{return e.EventID=='ArrivedToDestination' && e.SaleDeliveryID==this.selectedRow.SaleDeliveryID}).length>0;
 }
 
 isNotDeliveryInDestination():boolean{
@@ -107,7 +106,7 @@ isNotDeliveryInDestination():boolean{
   if(this.record==null){
     return false;
   }
-  return this.record.TripEvent.filter(function(e:any){return e.EventID=='LeftFromDestination'}).length>0;
+  return this.record.TripEvent.filter((e:any) =>{return e.EventID=='LeftFromDestination' && e.SaleDeliveryID==this.selectedRow.SaleDeliveryID}).length>0;
 }
 
   
@@ -116,8 +115,8 @@ isNotDeliveryInDestination():boolean{
       return false;
     }
   
-    console.log(this.record.TripEvent.filter(function(e:any){return e.EventID=='FinishTrip'}).length>0);
-    console.log("Closed")
+    // console.log(this.record.TripEvent.filter(function(e:any){return e.EventID=='FinishTrip'}).length>0);
+    // console.log("Closed")
     return this.record.TripEvent.filter(function(e:any){return e.EventID=='FinishTrip'}).length>0;
   
   }
@@ -172,7 +171,11 @@ isNotDeliveryInDestination():boolean{
   }
 
   backToRecordList(): void {
+    this.tripService.selectedRow = null
+    this.record = this.tripService.record
     this.location.back();
+
+    
   }
 
   public async takePicture(event: any, model: any, fieldName: string) {

@@ -67,14 +67,14 @@ export class TripComponent implements OnInit, AfterViewChecked {
 
   ngOnInit() {
     this.id = this.route.snapshot.paramMap.get('id');
-    if (this.tripService.record && this.tripService.record.TripID == this.id) {
-      this.record = this.tripService.record
+    if (this.tripService.record && this.tripService.record.TripCode == this.id) {
+      // this.record = this.tripService.record
     }
     else {
-
       this.tripService.getTrip(this.id)
         .subscribe(data => {
           this.record = data;
+          this.tripService.record = data;
           this.tripService.getEventList().subscribe(data => { this.tripService.eventList = data }, function (error) {
             alert("error");
           })
@@ -83,37 +83,16 @@ export class TripComponent implements OnInit, AfterViewChecked {
         })
     }
 
-    if (this.tripService.record && this.tripService.record.SaleDeliveryOnTripStatusID == this.id) {
-      this.record = this.tripService.record
-    }
-    else {
 
-      this.tripService.getTrip(this.id)
-        .subscribe(data => {
-          this.record = data;
           this.tripService.getSaleDeliveryOnTripStatusList().subscribe(data => { this.tripService.saleDeliveryOnTripStatusList = data }, function (error) {
             alert("error");
-          })
-        }, function (error) {
-
-        })
-    }
-
-    if (this.tripService.record && this.tripService.record.saleDeliveryRejectReasonID == this.id) {
-      this.record = this.tripService.record
-    }
-    else {
-
-      this.tripService.getTrip(this.id)
-        .subscribe(data => {
-          this.record = data;
-          this.tripService.getSaleDeliveryRejectReasonList().subscribe(data => { this.tripService.saleDeliveryRejectReasonList = data }, function (error) {
+          });
+       
+ this.tripService.getSaleDeliveryRejectReasonList().subscribe(data => { this.tripService.saleDeliveryRejectReasonList = data }, function (error) {
             alert("error");
-          })
-        }, function (error) {
+          });
 
-        })
-    }
+    
 
     this.tripService.getLocation().subscribe((position: GeolocationPosition) => {
       this.locationEnabled = true;
@@ -128,23 +107,31 @@ export class TripComponent implements OnInit, AfterViewChecked {
 
 isTripStarted():boolean{
 
-  if(this.record==null){
-    return false;
-  }
+  if(this.tripService.record==null){
+    return false;}
+  // if(this.record==null){
+  //   return false;
+  // }
 
-  return this.record.TripEvent.filter(function(e:any){return e.EventID=='StartTrip'}).length>0;
+  //return this.record.TripEvent.filter(function(e:any){return e.EventID=='StartTrip'}).length>0;
+  return this.tripService.record.TripEvent.filter(function(e:any){return e.EventID=='StartTrip'}).length>0;
 }
 
 isTripclosed():boolean{
-  if(this.record==null){
+    // if(this.record==null){
+    //   return false;
+    // }
+    //return this.record.TripEvent.filter(function(e:any){return e.EventID=='FinishTrip'}).length>0;
+
+  if(this.tripService.record==null){
     return false;
   }
 
-  return this.record.TripEvent.filter(function(e:any){return e.EventID=='FinishTrip'}).length>0;
+  return this.tripService.record.TripEvent.filter(function(e:any){return e.EventID=='FinishTrip'}).length>0;
 
 }
 
-public async takePicture(event: any, model: any, fieldName: string) {
+public async takePicture(event: any) {
 
   let target: HTMLInputElement = <HTMLInputElement>event.target;
   let files: FileList = target.files;
@@ -171,7 +158,8 @@ public async takePicture(event: any, model: any, fieldName: string) {
         var tripEvent: any = {};
         tripEvent.Preview = res.body.Preview
         tripEvent.FileID = res.body.FileID
-        tripEvent.TripID = this.record.TripID
+        // tripEvent.TripID = this.record.TripID
+        tripEvent.TripID = this.tripService.record.TripID
         // tripEvent.SaleDeliveryID = this.selectedRow.SaleDeliveryID
         tripEvent.SaleDeliveryID = null
         // tripEvent.SourceID = this.selectedRow.SourceID
@@ -183,7 +171,9 @@ public async takePicture(event: any, model: any, fieldName: string) {
           this.changeDetectorRef.markForCheck();
           tripEvent.Longitude = position.coords.longitude;
           tripEvent.Latitude = position.coords.latitude;
+          //this.record.TripEvent.push(tripEvent);
           this.tripService.addTripEvent(tripEvent);
+
         }, (error: any) => {
           this.tripService.addTripEvent(tripEvent);
           alert('Error getting location' + error)
@@ -201,7 +191,8 @@ public async takePicture(event: any, model: any, fieldName: string) {
   setLocation(EventID: string, SaleDeliveryID:string, SourceID: string): void {
     var tripEvent: any = {};
 
-    tripEvent.TripID = this.record.TripID
+    tripEvent.TripID = this.tripService.record.TripID
+    //tripEvent.TripID = this.record.TripID
     tripEvent.SaleDeliveryID = SaleDeliveryID
     tripEvent.SourceID = SourceID
     this.tripService.getLocation().subscribe((position: GeolocationPosition) => {
@@ -209,7 +200,6 @@ public async takePicture(event: any, model: any, fieldName: string) {
      
       this.currentPositionUrl = this.tripService.getUrl(position);
       this.changeDetectorRef.markForCheck();
-     
 
       tripEvent.Longitude = position.coords.longitude;
       tripEvent.Latitude = position.coords.latitude;
@@ -234,8 +224,6 @@ public async takePicture(event: any, model: any, fieldName: string) {
       this.tripService.selectedRow.SaleDeliveryOnTripStatusID = undefined
       this.tripService.selectedRow.SaleDeliveryRejectReasonID = undefined
     }
-
-    this.tripService.record = this.record
     
     this.router.navigate([this.location.pathname, r.SaleDeliveryID], {
       relativeTo: this.route,
@@ -245,7 +233,7 @@ public async takePicture(event: any, model: any, fieldName: string) {
   }
   backToRecordList() {
     this.tripService.selectedRow = null
-    this.record = this.tripService.record
+    // this.record = this.tripService.record
   }
 
   public handleError<T>(operation = 'operation', result?: T) {
@@ -257,7 +245,7 @@ public async takePicture(event: any, model: any, fieldName: string) {
   }
 
   public async uploadFile(event: any, model: any, fieldName: string) {
-
+    alert("Uploading file");
     let target: HTMLInputElement = <HTMLInputElement>event.target;
     let files: FileList = target.files;
 

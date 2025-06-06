@@ -6,7 +6,8 @@ import { HttpClient, HttpErrorResponse, HttpEvent, HttpEventType, HttpHeaders, H
 import {HighlightModule} from 'ngx-highlightjs';
 import { FormsModule } from '@angular/forms';
 import { ToastrService, ToastrModule } from 'ngx-toastr';
-
+import { environment } from '../environments/environment';
+import { TripService } from './TripService/trip.service';
 
 
 @Component({
@@ -18,4 +19,12 @@ import { ToastrService, ToastrModule } from 'ngx-toastr';
 })
 export class AppComponent {
   title = 'GeoLocation';
+
+  constructor(private tripService: TripService) {
+    this.tripService.baseUrl = environment.webAPIUrl;
+    
+    
+  }
+
+
 }

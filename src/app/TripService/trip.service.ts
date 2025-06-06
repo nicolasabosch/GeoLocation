@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 import { SafeResourceUrl, DomSanitizer } from '@angular/platform-browser';
 import { GeolocationService } from '@ng-web-apis/geolocation';
 import { catchError, Observable, take, tap, throwError } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -11,8 +12,8 @@ import { catchError, Observable, take, tap, throwError } from 'rxjs';
 export class TripService {
   selectedRow: any={};
   record: any = {}
-  baseUrl: string = "https://szc3r859-5004.brs.devtunnels.ms/";
-  //baseUrl: string="http://localhost:5004/"
+  //baseUrl: string = "https://szc3r859-5004.brs.devtunnels.ms/";
+  baseUrl: string = environment.webAPIUrl;
   eventList: any = []
   saleDeliveryOnTripStatusList: any=[]
   saleDeliveryRejectReasonList: any=[]
@@ -112,9 +113,9 @@ export class TripService {
 
   addTripEvent(tripEvent: any): any {
     const headers = new HttpHeaders({ 'ngsw-bypass': '' });
-
+    
     this.http.post<any>(this.baseUrl + "Api/TripEvent", tripEvent, {}).subscribe((data: any) => {
-      console.log(data);
+      console.log(this.record);
       tripEvent.TripEventID = data.TripEventID;
       tripEvent.CreatedOn = data.CreatedOn;
       this.record.TripEvent.push(tripEvent);

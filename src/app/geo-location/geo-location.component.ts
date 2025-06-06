@@ -8,10 +8,11 @@ import {DomSanitizer} from '@angular/platform-browser';
 
 import { HttpClient, HttpErrorResponse, HttpEvent, HttpEventType, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { catchError, Observable, take, tap, throwError } from 'rxjs';
+import { TripService } from '../TripService/trip.service';
 @Component({
   selector: 'app-geo-location',
   standalone: true,
-  imports: [CurrencyPipe, DatePipe, TitleCasePipe, JsonPipe, NgIf, SafePipe],
+  imports: [NgIf, SafePipe],
   templateUrl: './geo-location.component.html',
   styleUrl: './geo-location.component.css'
 })
@@ -22,13 +23,14 @@ export class GeoLocationComponent implements AfterViewChecked {
   Latitud: any;
   Longitud: any;
   url: string = "";
-  baseUrl: string = "https://szc3r859-5004.brs.devtunnels.ms/";
-  //baseUrl: string="http://localhost:5004/"
+  //baseUrl: string = "https://szc3r859-5004.brs.devtunnels.ms/";
+  baseUrl=this.tripService.baseUrl
+  //baseUrl: string = "https://localhost:5004/";
 
   inputFile: HTMLInputElement | undefined;
   geolocation: GeolocationService
   constructor(public http: HttpClient, geolocation: GeolocationService, private readonly changeDetectorRef: ChangeDetectorRef,
-  ) {
+  private tripService: TripService) {
 
       this.geolocation=geolocation
       geolocation.subscribe(position => this.getLocation(position))
