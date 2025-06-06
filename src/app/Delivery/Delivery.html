@@ -9,26 +9,26 @@
                 <label for="txtTripNumber" tlt>
                     Viaje N°
                 </label>
-                <div class="form-control disabled">{{selectedRow.TripID}}</div>
+                <div class="form-control disabled">{{tripService.selectedRow.TripID}}</div>
             </div>
         </div>
         <div class="col-6 col-sm-2 form-group">
             <label for="txtTripID" tlt>
                 Origen
             </label>
-            <div class="form-control disabled">{{selectedRow.SourceName}}</div>
+            <div class="form-control disabled">{{tripService.selectedRow.SourceName}}</div>
         </div>
         <div class="col-6 col-sm-2 form-group">
             <label for="txtTripDate" tlt>
                 Envio
             </label>
-            <div class="form-control disabled">{{selectedRow.SaleDeliveryNumber}}</div>
+            <div class="form-control disabled">{{tripService.selectedRow.SaleDeliveryNumber}}</div>
         </div>
         <div class="col-6 col-sm-2 form-group">
             <label for="txtTripStatusName" tlt>
                 Pedido
             </label>
-            <div class="form-control disabled">{{selectedRow.SaleOrderNumber}}</div>
+            <div class="form-control disabled">{{tripService.selectedRow.SaleOrderNumber}}</div>
         </div>
 
 
@@ -36,45 +36,45 @@
             <label for="txtTripDate" tlt>
                 Unidades
             </label>
-            <div class="form-control disabled">{{selectedRow.Units | number:'1.2-2'}}</div>
+            <div class="form-control disabled">{{tripService.selectedRow.Units | number:'1.2-2'}}</div>
         </div>
         <div class="col-6 col-sm-2 form-group">
             <label for="txtTripDate" tlt>
                 Kilos
             </label>
-            <div class="form-control disabled">{{selectedRow.Kilos | number:'1.2-2'}}</div>
+            <div class="form-control disabled">{{tripService.selectedRow.Kilos | number:'1.2-2'}}</div>
         </div>
         <div class="col-6 col-sm-2 form-group">
             <label for="txtTripDate" tlt>
                 Metros
             </label>
-            <div class="form-control disabled">{{selectedRow.Meters | number:'1.2-2'}}</div>
+            <div class="form-control disabled">{{tripService.selectedRow.Meters | number:'1.2-2'}}</div>
         </div>
 
         <div class="col-6 col-sm-2 form-group">
             <label for="txtTripTypeName" tlt>
                 Vendedor
             </label>
-            <div class="form-control disabled">{{selectedRow.SaleRepresentativeName}}</div>
+            <div class="form-control disabled">{{tripService.selectedRow.SaleRepresentativeName}}</div>
         </div>
         <div class="col-6 col-sm-2 form-group">
             <label for="txtDeliveryZoneName" tlt>
                 Cliente
             </label>
-            <div class="form-control disabled">{{selectedRow.CustomerName}}</div>
+            <div class="form-control disabled">{{tripService.selectedRow.CustomerName}}</div>
         </div>
-        <div class="col-6 col-sm-4 form-group" *ngIf="record.TripTypeID =='Customer'">
+        <div class="col-6 col-sm-4 form-group" *ngIf="tripService.record.TripTypeID =='Customer'">
             <label for="txtWarehouseGroupID" tlt>
                 Dirección
             </label>
-            <div *ngIf="record.TripTypeID =='Customer'" class="form-control disabled">
-                <div [hidden]="!(record.TripTypeID =='Customer' && record.DeliveryZoneID !=='Expreso')">
-                    {{selectedRow.Address}} {{selectedRow.DistrictName}} ({{selectedRow.ZipCode}})
-                    {{selectedRow.StateName}}
+            <div *ngIf="tripService.record.TripTypeID =='Customer'" class="form-control disabled">
+                <div [hidden]="!(tripService.record.TripTypeID =='Customer' && tripService.record.DeliveryZoneID !=='Expreso')">
+                    {{tripService.selectedRow.Address}} {{tripService.selectedRow.DistrictName}} ({{tripService.selectedRow.ZipCode}})
+                    {{tripService.selectedRow.StateName}}
                 </div>
-                <div [hidden]="!(record.TripTypeID =='Customer' && record.DeliveryZoneID ==='Expreso')">
-                    <strong>{{selectedRow.CarrierName}}</strong><br />
-                    {{selectedRow.CarrierAddress}} {{selectedRow.CarrierPhone}}
+                <div [hidden]="!(tripService.record.TripTypeID =='Customer' && tripService.record.DeliveryZoneID ==='Expreso')">
+                    <strong>{{tripService.selectedRow.CarrierName}}</strong><br />
+                    {{tripService.selectedRow.CarrierAddress}} {{tripService.selectedRow.CarrierPhone}}
                 </div>
             </div>
         </div>
@@ -82,20 +82,20 @@
             <label for="txtFreightName" tlt>
                 Zona
             </label>
-            <div class="form-control disabled">{{selectedRow.DeliveryZoneName}}</div>
+            <div class="form-control disabled">{{tripService.selectedRow.DeliveryZoneName}}</div>
         </div>
         <div class="col-12 form-group">
             <label for="txtVehicleTypeName" tlt>
                 Instrucciones de entrega
             </label>
-            <div class="form-control disabled">{{selectedRow.DeliveryInstruction}}</div>
+            <div class="form-control disabled">{{tripService.selectedRow.DeliveryInstruction}}</div>
         </div>
         <div class="col-6 col-sm-2 form-group">
             <label for="txtWarehouseID" tlt>
                 Estado de entrega
             </label>
 
-            <select [(ngModel)]="selectedRow.SaleDeliveryOnTripStatusID" class="form-select" autocomplete="off"
+            <select [(ngModel)]="tripService.selectedRow.SaleDeliveryOnTripStatusID" class="form-select" autocomplete="off"
                 placeholder="Estado de entrega" name="txtSaleDeliveryOnTripStatusID"
                 [hidden]="!isTripStarted() && isTripclosed() || !isTripStarted() && !isTripclosed()">
                 <option [ngValue]=undefined selected tlt> - Seleccione -</option>
@@ -106,12 +106,12 @@
             </select>
 
         </div>
-        <div class="col-sm-3 form-group" *ngIf="selectedRow.SaleDeliveryOnTripStatusID ==='Rejected'">
+        <div class="col-sm-3 form-group" *ngIf="tripService.selectedRow.SaleDeliveryOnTripStatusID ==='Rejected'">
             <label for="txtWarehouseID" tlt>
                 Motivo rechazo
             </label>
 
-            <select [(ngModel)]="selectedRow.SaleDeliveryRejectReasonID" class="form-select" autocomplete="off"
+            <select [(ngModel)]="tripService.selectedRow.SaleDeliveryRejectReasonID" class="form-select" autocomplete="off"
                 placeholder="Motivo rechazo" name="txtSaleDeliveryRejectReasonID">
                 <option [ngValue]=undefined selected tlt>- Seleccione -</option>
                 <option [value]="T.SaleDeliveryRejectReasonID"
@@ -125,22 +125,21 @@
             <label for="txtDriverName" tlt>
                 Comentarios transportista
             </label>
-            <textarea class="form-control" [(ngModel)]="selectedRow.SaleDeliveryOnTripRemarks"
+            <textarea class="form-control" [(ngModel)]="tripService.selectedRow.SaleDeliveryOnTripRemarks"
                 placeholder="Comentarios Entrega"></textarea>
         </div>
     </div>
     <div class="row" style="padding: 0xp ; margin:0px ; margin-top: 25px; margin-bottom: 25px;">
 
         <div class="col-6 form-group">
-            <button type="button" class="btn btn-success" (click)="SaleDeliveryOnTripStatusChanged(selectedRow)">Grabar
-                cambios</button>
+            <button type="button" class="btn btn-success" (click)="SaleDeliveryOnTripStatusChanged(tripService.selectedRow)">Grabar cambios</button>
         </div>
         <div class="col-6 form-group">
             <label for="myFile" class="btn btn-success">
                 <i class="fas fa-upload"></i>&nbsp;&nbsp;<span tlt>Foto en destino</span>
             </label>
             <input class="btn btn-success col-6" type="file" id="myFile" name="filename" accept="image/*"
-                (change)="takePicture($event,record,'FileID')" capture style="visibility: hidden;">
+                (change)="takePicture($event)" capture style="visibility: hidden;">
         </div>
 
     </div>
@@ -172,7 +171,7 @@
             </thead>
             <tbody>
                 <tr
-                    *ngFor="let r of record.TripEvent | filter:{'SaleDeliveryID':selectedRow.SaleDeliveryID} | orderBy:'-CreatedOn'; let index=index">
+                    *ngFor="let r of tripService.record.TripEvent | filter:{'SaleDeliveryID':tripService.selectedRow.SaleDeliveryID} | orderBy:'-CreatedOn'; let index=index">
                     <td>{{(tripService.eventList | filter:'EventID':r.EventID)[0].EventName}}</td>
                     <td class="col-sm-1">
                         <label for="Location" class="btn btn-dark">

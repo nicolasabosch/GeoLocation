@@ -31,12 +31,13 @@ bootstrapApplication(AppComponent, {
 
 export class DeliveryComponent implements AfterContentInit {
 
-  selectedRow: any={};
-  record: any = {}
+  // selectedRow: any={};
+  // record: any = {}
   currentPositionUrl: SafeResourceUrl | null = null;
   mapVisible: boolean = false;
   pictureVisible: boolean = false;
   search: any = {};
+  eventList: any = [];
   SaleDeliveryOnTripStatusList: any = [];
   SaleDeliveryRejectReasonList: any = [];
   constructor(
@@ -61,6 +62,11 @@ export class DeliveryComponent implements AfterContentInit {
       .subscribe(data => {
         this.SaleDeliveryRejectReasonList = data;
       });
+
+      this.tripService.getEventList()
+      .subscribe(data => {
+        this.eventList = data;
+      });
   }
 
   viewPosition(r: any): void {
@@ -83,51 +89,54 @@ export class DeliveryComponent implements AfterContentInit {
 
   isTripStarted():boolean{
 
-    if(this.record==null){
+    if(this.tripService.record==null){
       return false;
     }
   
     // console.log(this.record.TripEvent.filter(function(e:any){return e.EventID=='StartTrip'}).length > 0);
     // console.log("Opened")
-    return this.record.TripEvent.filter(function(e:any){return e.EventID=='StartTrip'}).length>0;
+    return this.tripService.record.TripEvent.filter(function(e:any){return e.EventID=='StartTrip'}).length>0;
   }
 
 
   isDeliveryInDestination():boolean{
 
-  if(this.record==null){
+  if(this.tripService.record==null){
     return false;
   }
-  return this.record.TripEvent.filter((e:any) =>{return e.EventID=='ArrivedToDestination' && e.SaleDeliveryID==this.selectedRow.SaleDeliveryID}).length>0;
+  return this.tripService.record.TripEvent.filter((e:any) =>{return e.EventID=='ArrivedToDestination' && e.SaleDeliveryID==this.tripService.selectedRow.SaleDeliveryID}).length>0;
 }
 
 isNotDeliveryInDestination():boolean{
 
-  if(this.record==null){
+  if(this.tripService.record==null){
     return false;
   }
-  return this.record.TripEvent.filter((e:any) =>{return e.EventID=='LeftFromDestination' && e.SaleDeliveryID==this.selectedRow.SaleDeliveryID}).length>0;
+  return this.tripService.record.TripEvent.filter((e:any) =>{return e.EventID=='LeftFromDestination' && e.SaleDeliveryID==this.tripService.selectedRow.SaleDeliveryID}).length>0;
 }
 
   
   isTripclosed():boolean{
-    if(this.record==null){
+    if(this.tripService.record==null){
       return false;
     }
   
     // console.log(this.record.TripEvent.filter(function(e:any){return e.EventID=='FinishTrip'}).length>0);
     // console.log("Closed")
-    return this.record.TripEvent.filter(function(e:any){return e.EventID=='FinishTrip'}).length>0;
-  
+    return this.tripService.record.TripEvent.filter(function(e:any){return e.EventID=='FinishTrip'}).length>0;
+
   }
 
   SaleDeliveryOnTripStatusChanged(selectedRow:any):void{
 
+
+    
     this.tripService.http.put(this.tripService.baseUrl + "Api/Trip", selectedRow).subscribe((data: any) => {
       this.toastr.success('Guardado', 'Bien', {
         positionClass: 'toast-top-right',
       });
-
+this.tripService.record.SaleDelivery.filter((e:any) => e.SaleDeliveryID == selectedRow.SaleDeliveryID)[0].SaleDeliveryOnTripStatusID = selectedRow.SaleDeliveryOnTripStatusID
+this.tripService.record.SaleDelivery.filter((e:any) => e.SaleDeliveryID == selectedRow.SaleDeliveryID)[0].SaleDeliveryOnTripStatusName = selectedRow.SaleDeliveryOnTripStatusName
 
     }, (err: any) => console.log(err));
     
@@ -137,9 +146,9 @@ isNotDeliveryInDestination():boolean{
   setLocation(EventID: string): void {
     var tripEvent: any = {};
 
-    tripEvent.TripID = this.selectedRow.TripID
-    tripEvent.SaleDeliveryID = this.selectedRow.SaleDeliveryID
-    tripEvent.SourceID = this.selectedRow.SourceID
+    tripEvent.TripID = this.tripService.selectedRow.TripID
+    tripEvent.SaleDeliveryID = this.tripService.selectedRow.SaleDeliveryID
+    tripEvent.SourceID = this.tripService.selectedRow.SourceID
     this.tripService.getLocation().subscribe((position: GeolocationPosition) => {
       this.mapVisible = true;
 
@@ -165,20 +174,20 @@ isNotDeliveryInDestination():boolean{
 
   ngAfterContentInit(): void {
 
-    this.selectedRow = this.tripService.selectedRow
-    this.record = this.tripService.record;
+    // this.selectedRow = this.tripService.selectedRow
+    // this.record = this.tripService.record;
 
   }
 
   backToRecordList(): void {
     this.tripService.selectedRow = null
-    this.record = this.tripService.record
+    this.tripService.record = this.tripService.record
     this.location.back();
 
     
   }
 
-  public async takePicture(event: any, model: any, fieldName: string) {
+  public async takePicture(event: any) {
 
     let target: HTMLInputElement = <HTMLInputElement>event.target;
     let files: FileList = target.files;
@@ -205,9 +214,9 @@ isNotDeliveryInDestination():boolean{
           var tripEvent: any = {};
           tripEvent.Preview = res.body.Preview
           tripEvent.FileID = res.body.FileID
-          tripEvent.TripID = this.selectedRow.TripID
-          tripEvent.SaleDeliveryID = this.selectedRow.SaleDeliveryID
-          tripEvent.SourceID = this.selectedRow.SourceID
+          tripEvent.TripID = this.tripService.selectedRow.TripID
+          tripEvent.SaleDeliveryID = this.tripService.selectedRow.SaleDeliveryID
+          tripEvent.SourceID = this.tripService.selectedRow.SourceID
           tripEvent.EventID = "PictureInDestination"
 
           this.tripService.getLocation().subscribe((position: GeolocationPosition) => {

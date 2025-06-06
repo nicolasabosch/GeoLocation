@@ -73,7 +73,7 @@ export class TripComponent implements OnInit, AfterViewChecked {
     else {
       this.tripService.getTrip(this.id)
         .subscribe(data => {
-          this.record = data;
+          //this.record = data;
           this.tripService.record = data;
           this.tripService.getEventList().subscribe(data => { this.tripService.eventList = data }, function (error) {
             alert("error");

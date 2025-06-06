@@ -11,7 +11,7 @@ import { environment } from '../../environments/environment';
 })
 export class TripService {
   selectedRow: any={};
-  record: any = {}
+  record: any = null;
   //baseUrl: string = "https://szc3r859-5004.brs.devtunnels.ms/";
   baseUrl: string = environment.webAPIUrl;
   eventList: any = []

@@ -1,7 +1,7 @@
 <div [hidden]="!locationEnabled">
     <div [hidden]="mapVisible">
 
-        <div class="container" *ngIf="record">
+        <div class="container" *ngIf="tripService.record">
             <div *ngIf="!this.selectedRow">
                 <div class="row">
                     <div class="col-3 col-sm-2 form-group">
@@ -83,23 +83,27 @@
                                 <th tlt>Origen</th>
                                 <th tlt>N° Envio</th>
                                 <th tlt>Cliente</th>
+                                <th tlt>Estado</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let r of record.TripSaleDelivery; let index=index" (click)="viewRecord(r)">
+                            <tr *ngFor="let r of tripService.record.TripSaleDelivery; let index=index" (click)="viewRecord(r)">
                                 <td>{{r.SourceName}} </td>
                                 <td style="text-align:right; font-weight:bold">{{r.SaleDeliveryNumber}} </td>
                                 <td>{{r.CustomerName}} </td>
+                                <td>{{r.SaleDeliveryOnTripStatusName}}</td>
                             </tr>
-                            <tr *ngFor="let r of record.TripWithdrawalOrder; let j=index" (click)="viewRecord(r)">
+                            <tr *ngFor="let r of tripService.record.TripWithdrawalOrder; let j=index" (click)="viewRecord(r)">
                                 <td>{{r.SourceName}} </td>
                                 <td style="text-align:right; font-weight:bold">{{r.SaleDeliveryNumber}} </td>
                                 <td>{{r.CustomerName}} </td>
+                                <td>{{r.SaleDeliveryOnTripStatusName}}</td>
                             </tr>
-                            <tr *ngFor="let r of record.TripSaleRetail; let h=index" (click)="viewRecord(r)">
+                            <tr *ngFor="let r of tripService.record.TripSaleRetail; let h=index" (click)="viewRecord(r)">
                                 <td>{{r.SourceName}} </td>
                                 <td style="text-align:right; font-weight:bold">{{r.SaleDeliveryNumber}} </td>
                                 <td>{{r.CustomerName}} </td>
+                                <td>{{r.SaleDeliveryOnTripStatusName}}</td>
                             </tr>
 
                         </tbody>
@@ -159,12 +163,12 @@
                         <label for="txtWarehouseGroupID" tlt>
                             Dirección
                         </label>
-                        <div *ngIf="record.TripTypeID =='Customer'" class="form-control disabled">
-                            <div [hidden]="!(record.TripTypeID =='Customer' && record.DeliveryZoneID !=='Expreso')">
+                        <div *ngIf="tripService.record.TripTypeID =='Customer'" class="form-control disabled">
+                            <div [hidden]="!(tripService.record.TripTypeID =='Customer' && tripService.record.DeliveryZoneID !=='Expreso')">
                                 {{selectedRow.Address}} {{selectedRow.DistrictName}} ({{selectedRow.ZipCode}})
                                 {{selectedRow.StateName}}
                             </div>
-                            <div [hidden]="!(record.TripTypeID =='Customer' && record.DeliveryZoneID ==='Expreso')">
+                            <div [hidden]="!(tripService.record.TripTypeID =='Customer' && tripService.record.DeliveryZoneID ==='Expreso')">
                                 <strong>{{selectedRow.CarrierName}}</strong><br />
                                 {{selectedRow.CarrierAddress}} {{selectedRow.CarrierPhone}}
                             </div>
