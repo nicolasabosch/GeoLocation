@@ -135,8 +135,8 @@ isNotDeliveryInDestination():boolean{
       this.toastr.success('Guardado', 'Bien', {
         positionClass: 'toast-top-right',
       });
-this.tripService.record.SaleDelivery.filter((e:any) => e.SaleDeliveryID == selectedRow.SaleDeliveryID)[0].SaleDeliveryOnTripStatusID = selectedRow.SaleDeliveryOnTripStatusID
-this.tripService.record.SaleDelivery.filter((e:any) => e.SaleDeliveryID == selectedRow.SaleDeliveryID)[0].SaleDeliveryOnTripStatusName = selectedRow.SaleDeliveryOnTripStatusName
+this.tripService.record.TripSaleDelivery.filter((e:any) => e.SaleDeliveryID == selectedRow.SaleDeliveryID)[0].SaleDeliveryOnTripStatusID = selectedRow.SaleDeliveryOnTripStatusID
+this.tripService.record.TripSaleDelivery.filter((e:any) => e.SaleDeliveryID == selectedRow.SaleDeliveryID)[0].SaleDeliveryOnTripStatusName = this.SaleDeliveryOnTripStatusList.find((e:any) => e.SaleDeliveryOnTripStatusID == selectedRow.SaleDeliveryOnTripStatusID).SaleDeliveryOnTripStatusName
 
     }, (err: any) => console.log(err));
     
