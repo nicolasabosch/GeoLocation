@@ -5,6 +5,9 @@ import { SafeResourceUrl, DomSanitizer } from '@angular/platform-browser';
 import { GeolocationService } from '@ng-web-apis/geolocation';
 import { catchError, Observable, take, tap, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { OnlineStatusService, OnlineStatusType } from './online-status.service';
+import { formatDate } from '@angular/common';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root'
@@ -17,13 +20,68 @@ export class TripService {
   eventList: any = []
   saleDeliveryOnTripStatusList: any=[]
   saleDeliveryRejectReasonList: any=[]
-
+  uploadImagesList: any = [];
+  TripEventList: any = [];
+  newStatus=-1;
 
   constructor(
     public http: HttpClient,
     private readonly domSanitizer: DomSanitizer,
-    readonly geolocation$: GeolocationService
-  ) { }
+    readonly geolocation$: GeolocationService,
+    public onlineStatusService: OnlineStatusService,
+    private toastr: ToastrService
+  ) { 
+    this.onlineStatusService.status.subscribe(async(status: OnlineStatusType) => {
+      
+      if(status === OnlineStatusType.ONLINE){
+        this.newStatus = OnlineStatusType.ONLINE;
+        
+      }
+      else if(status === OnlineStatusType.OFFLINE){
+        this.newStatus = OnlineStatusType.OFFLINE;
+      }
+      
+        if (this.newStatus === OnlineStatusType.ONLINE) {
+          this.toastr.success('Volviste a estar en linea', 'En linea');
+          this.newStatus=OnlineStatusType.ONLINE;
+          // await this.uploadFileToURL(files[0], status);
+          if (this.uploadImagesList.length > 0) {
+            for (let i = 0; i < this.uploadImagesList.length; i++) {
+              const file = this.uploadImagesList[i];
+              if (file) {
+                await this.uploadFileToURL(file, this.uploadImagesList[i][1]).then((data: any) => {
+                  console.log(data);
+                }).catch((error: any) => {
+                  console.error(error);
+                });
+              }
+            }
+          }
+        }
+        else{
+          this.toastr.error('Perdiste la conexión a internet', 'Sin conexión');
+          this.newStatus=OnlineStatusType.OFFLINE;
+        }
+      
+      console.log('Online status changed:', status);
+      this.baseUrl = environment.webAPIUrl;
+
+    }); }
+
+   public newGuid(): string {
+      var guid: string;
+
+
+      guid = formatDate(new Date(), 'yyyyMMdd-HHmmssSSS', 'en') + "-" +
+        Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1) +
+        Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1) + "-" +
+        Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1) +
+        Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1)
+
+      return guid;
+
+
+  };
 
   getTrip(tripID: any): Observable<any> {
     return this.http.get(this.baseUrl + "Api/Trip/" + tripID)
@@ -40,13 +98,20 @@ export class TripService {
     return this.http.get(this.baseUrl + "Api/Event")
   }
 
-  public async uploadFileToURL(file: any) {
+  public async uploadFileToURL(file: any, fileID:string) {
+    
+    
+    if (this.newStatus==OnlineStatusType.OFFLINE){
+      this.baseUrl=''
+    }
+    
     let uploadURL = this.baseUrl + "api/File";
     const headers = new HttpHeaders({ 'ngsw-bypass': '' });
     const formData: FormData = new FormData();
-
     var resizedFile: any = await this.ImageResizeAsync(file)
     formData.append('file', resizedFile, file.name);
+    formData.append('fileID', fileID);
+
     return this.http.post<any>(uploadURL, formData,
       {
         reportProgress: true,
@@ -54,8 +119,6 @@ export class TripService {
         headers: headers
       }).pipe(
         tap(event => {
-
-
 
         }
         ))
@@ -120,7 +183,12 @@ export class TripService {
       tripEvent.CreatedOn = data.CreatedOn;
       this.record.TripEvent.push(tripEvent);
 
-    }, (err: any) => console.log(err));
+    }, (err: any) => {
+      console.error(err);
+      tripEvent.status="Pending";
+      this.TripEventList.push(tripEvent);
+      console.log(this.TripEventList);
+    });
 
   }
 

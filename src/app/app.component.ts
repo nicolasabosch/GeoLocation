@@ -20,11 +20,5 @@ import { TripService } from './TripService/trip.service';
 export class AppComponent {
   title = 'GeoLocation';
 
-  constructor(private tripService: TripService) {
-    this.tripService.baseUrl = environment.webAPIUrl;
-    
-    
-  }
-
 
 }

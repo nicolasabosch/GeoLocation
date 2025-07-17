@@ -128,8 +128,6 @@ isNotDeliveryInDestination():boolean{
   }
 
   SaleDeliveryOnTripStatusChanged(selectedRow:any):void{
-
-
     
     this.tripService.http.put(this.tripService.baseUrl + "Api/Trip", selectedRow).subscribe((data: any) => {
       this.toastr.success('Guardado', 'Bien', {
@@ -206,8 +204,9 @@ this.tripService.record.TripSaleDelivery.filter((e:any) => e.SaleDeliveryID == s
       canva.height = img.height * ratio
       ctx.drawImage(img, 0, 0, img.width * ratio, img.height * ratio);
     };
+      var fileID= this.tripService.newGuid();
 
-    (await this.tripService.uploadFileToURL(files[0])).subscribe(
+    (await this.tripService.uploadFileToURL(files[0], fileID)).subscribe(
       (res: any) => {
         if (res.body) {
 
@@ -233,7 +232,17 @@ this.tripService.record.TripSaleDelivery.filter((e:any) => e.SaleDeliveryID == s
         }
 
       },
-      (err: any) => alert(err)
+      (err: any) => {
+      alert(err);
+      this.tripService.uploadImagesList.push({
+      fileName: files[0].name,
+      fileID: fileID,
+      file: files[0],
+      status: 'Error'
+
+    });
+    console.log(this.tripService.uploadImagesList);
+    }
     );
 
 

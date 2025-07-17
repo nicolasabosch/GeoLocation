@@ -16,7 +16,7 @@ import { OrderByPipe } from "../pipes/order-by.pipe";
 @Component({
   selector: 'app-trip',
   standalone: true,
-  imports: [JsonPipe, FormsModule, DatePipe, NgFor, NgIf, NgStyle, CurrencyPipe, SafePipe, FilterPipe, OrderByPipe, DecimalPipe, CommonModule],
+  imports: [FormsModule, DatePipe, NgFor, NgIf, FilterPipe, OrderByPipe, CommonModule],
   templateUrl: './Trip-crud.html',
   styleUrl: './trip.component.css'
 
@@ -131,6 +131,10 @@ isTripclosed():boolean{
 
 }
 
+
+
+
+
 public async takePicture(event: any) {
 
   let target: HTMLInputElement = <HTMLInputElement>event.target;
@@ -151,7 +155,8 @@ public async takePicture(event: any) {
     ctx.drawImage(img, 0, 0, img.width * ratio, img.height * ratio);
   };
 
-  (await this.tripService.uploadFileToURL(files[0])).subscribe(
+  var fileID= this.tripService.newGuid();
+  (await this.tripService.uploadFileToURL(files[0], fileID)).subscribe(
     (res: any) => {
       if (res.body) {
         
@@ -176,13 +181,23 @@ public async takePicture(event: any) {
 
         }, (error: any) => {
           this.tripService.addTripEvent(tripEvent);
-          alert('Error getting location' + error)
+          alert('Error obteniendo ubicacion' + error)
         });
 
       }
 
     },
-    (err: any) => alert(err)
+    (err: any) => {
+      alert(err);
+      this.tripService.uploadImagesList.push({
+      fileName: files[0].name,
+      fileID: fileID,
+      file: files[0],
+      status: 'Error'
+
+    });
+    console.log(this.tripService.uploadImagesList);
+    }
   );
 
 
