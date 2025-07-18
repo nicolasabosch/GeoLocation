@@ -1,7 +1,7 @@
 <div [hidden]="!locationEnabled">
     <div [hidden]="mapVisible">
 
-        <div class="container" *ngIf="tripService.record">
+        <div class="container" *ngIf="tripService.record" [ngStyle]="this.tripService.onlineStatus == 0 && {'border': '1px solid red'}">
             <div *ngIf="!this.selectedRow">
                 <div class="row">
                     <div class="col-3 col-sm-2 form-group">
@@ -76,6 +76,10 @@
                     <canvas id="canvaid" [hidden]="!pictureVisible"
                         style="max-width: 1000px; max-height: 1000px; border: solid 1px blue;"></canvas>
                 </div>
+
+                <h1>Eventos pendientes {{(this.tripService.record?.TripEvent | filter: {status: 'Error'}).length}}</h1>
+                <h1>Imagenes pendientes {{this.tripService.uploadImagesList.length}}</h1>
+
                 <div class="table-responsive">
                     <table class="table table-bordered  table-sm">
                         <thead class="table-dark">
@@ -278,3 +282,5 @@
     </div>
 
 </div>
+
+<pre>{{this.tripService.record?.TripEvent | json}}</pre>

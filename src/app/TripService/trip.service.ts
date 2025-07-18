@@ -13,16 +13,16 @@ import { ToastrService } from 'ngx-toastr';
   providedIn: 'root'
 })
 export class TripService {
-  selectedRow: any={};
+  selectedRow: any = {};
   record: any = null;
   //baseUrl: string = "https://szc3r859-5004.brs.devtunnels.ms/";
   baseUrl: string = environment.webAPIUrl;
   eventList: any = []
-  saleDeliveryOnTripStatusList: any=[]
-  saleDeliveryRejectReasonList: any=[]
+  saleDeliveryOnTripStatusList: any = []
+  saleDeliveryRejectReasonList: any = []
   uploadImagesList: any = [];
   TripEventList: any = [];
-  newStatus=-1;
+  onlineStatus: OnlineStatusType = OnlineStatusType.OFFLINE;
 
   constructor(
     public http: HttpClient,
@@ -30,55 +30,75 @@ export class TripService {
     readonly geolocation$: GeolocationService,
     public onlineStatusService: OnlineStatusService,
     private toastr: ToastrService
-  ) { 
-    this.onlineStatusService.status.subscribe(async(status: OnlineStatusType) => {
-      
-      if(status === OnlineStatusType.ONLINE){
-        this.newStatus = OnlineStatusType.ONLINE;
-        
+  ) {
+
+
+    this.onlineStatus = this.onlineStatusService.getStatus();
+
+    this.onlineStatusService.status.subscribe(async (status: OnlineStatusType) => {
+      console.log('Online status changed:', status);
+
+      if (status === OnlineStatusType.ONLINE) {
+        this.onlineStatus = OnlineStatusType.ONLINE;
+
       }
-      else if(status === OnlineStatusType.OFFLINE){
-        this.newStatus = OnlineStatusType.OFFLINE;
+      else {
+        this.onlineStatus = OnlineStatusType.OFFLINE;
       }
-      
-        if (this.newStatus === OnlineStatusType.ONLINE) {
-          this.toastr.success('Volviste a estar en linea', 'En linea');
-          this.newStatus=OnlineStatusType.ONLINE;
-          // await this.uploadFileToURL(files[0], status);
-          if (this.uploadImagesList.length > 0) {
-            for (let i = 0; i < this.uploadImagesList.length; i++) {
-              const file = this.uploadImagesList[i];
-              if (file) {
-                await this.uploadFileToURL(file, this.uploadImagesList[i][1]).then((data: any) => {
-                  console.log(data);
-                }).catch((error: any) => {
-                  console.error(error);
-                });
-              }
+      if (this.onlineStatus === OnlineStatusType.ONLINE) {
+        this.baseUrl = environment.webAPIUrl;
+        this.toastr.success('Volviste a estar en linea', 'En linea');
+
+        this.record.TripEvent.forEach((tripEvent: { TripEventID: any; CreatedOn: any; status: string; }) => {
+          if (tripEvent.status === "Error") {
+          this.http.post<any>(this.baseUrl + "Api/TripEvent", tripEvent, {}).subscribe((data: any) => {
+            tripEvent.TripEventID = data.TripEventID;
+            tripEvent.CreatedOn = data.CreatedOn;
+            tripEvent.status = "Ok";
+
+        }, (err: any) => {
+          console.error(err);
+          tripEvent.status = "Error";
+        });
+      }});
+
+
+        // await this.uploadFileToURL(files[0], status);
+        if (this.uploadImagesList.length > 0) {
+          for (let i = this.uploadImagesList.length - 1; i >= 0; i--) {
+            const row = this.uploadImagesList[i];
+            if (row.status == "Error") {
+              (await this.uploadFileToURL(row.file, row.fileID)).subscribe((data: any) => {
+                console.log(data);
+                this.uploadImagesList.splice(i, 1);
+              })
             }
           }
         }
-        else{
-          this.toastr.error('Perdiste la conexión a internet', 'Sin conexión');
-          this.newStatus=OnlineStatusType.OFFLINE;
-        }
-      
-      console.log('Online status changed:', status);
-      this.baseUrl = environment.webAPIUrl;
 
-    }); }
+      }
+      else {
+        this.toastr.error('Perdiste la conexión a internet', 'Sin conexión');
+        this.onlineStatus = OnlineStatusType.OFFLINE;
+        this.baseUrl = '';
+      }
 
-   public newGuid(): string {
-      var guid: string;
+      // this.baseUrl = environment.webAPIUrl;
+
+    });
+  }
+
+  public newGuid(): string {
+    var guid: string;
 
 
-      guid = formatDate(new Date(), 'yyyyMMdd-HHmmssSSS', 'en') + "-" +
-        Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1) +
-        Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1) + "-" +
-        Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1) +
-        Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1)
+    guid = formatDate(new Date(), 'yyyyMMdd-HHmmssSSS', 'en') + "-" +
+      Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1) +
+      Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1) + "-" +
+      Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1) +
+      Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1)
 
-      return guid;
+    return guid;
 
 
   };
@@ -98,13 +118,17 @@ export class TripService {
     return this.http.get(this.baseUrl + "Api/Event")
   }
 
-  public async uploadFileToURL(file: any, fileID:string) {
-    
-    
-    if (this.newStatus==OnlineStatusType.OFFLINE){
-      this.baseUrl=''
+  public async uploadFileToURL(file: any, fileID: string) {
+
+
+    if (this.onlineStatus == OnlineStatusType.OFFLINE) {
+      this.baseUrl = ''
     }
-    
+
+    if (this.onlineStatus == OnlineStatusType.ONLINE && this.baseUrl == '') {
+      this.baseUrl = environment.webAPIUrl;
+    }
+
     let uploadURL = this.baseUrl + "api/File";
     const headers = new HttpHeaders({ 'ngsw-bypass': '' });
     const formData: FormData = new FormData();
@@ -169,25 +193,24 @@ export class TripService {
 
   public handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
-      console.error(error);   
+      console.error(error);
       return throwError(() => new Error('Something bad happened; please try again later.'));
     };
   }
 
   addTripEvent(tripEvent: any): any {
     const headers = new HttpHeaders({ 'ngsw-bypass': '' });
-    
+
     this.http.post<any>(this.baseUrl + "Api/TripEvent", tripEvent, {}).subscribe((data: any) => {
-      console.log(this.record);
       tripEvent.TripEventID = data.TripEventID;
       tripEvent.CreatedOn = data.CreatedOn;
       this.record.TripEvent.push(tripEvent);
 
     }, (err: any) => {
       console.error(err);
-      tripEvent.status="Pending";
-      this.TripEventList.push(tripEvent);
-      console.log(this.TripEventList);
+      tripEvent.status = "Error";
+      this.record.TripEvent.push(tripEvent);
+
     });
 
   }
@@ -217,7 +240,7 @@ export class TripService {
           )
             filtered.push(item);
         }
-      } catch (e) {}
+      } catch (e) { }
     });
 
     return filtered;

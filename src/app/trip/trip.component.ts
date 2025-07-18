@@ -12,12 +12,14 @@ import { catchError, Observable, pipe, take, tap, throwError } from 'rxjs';
 import { TripService } from '../TripService/trip.service';
 import { FilterPipe } from "../pipes/filter.pipe";
 import { OrderByPipe } from "../pipes/order-by.pipe";
+import { OnlineStatusService, OnlineStatusType } from '../TripService/online-status.service';
+
 
 @Component({
   selector: 'app-trip',
   standalone: true,
   imports: [FormsModule, DatePipe, NgFor, NgIf, FilterPipe, OrderByPipe, CommonModule],
-  templateUrl: './Trip-crud.html',
+  templateUrl: './Trip.html',
   styleUrl: './trip.component.css'
 
 })
@@ -84,15 +86,15 @@ export class TripComponent implements OnInit, AfterViewChecked {
     }
 
 
-          this.tripService.getSaleDeliveryOnTripStatusList().subscribe(data => { this.tripService.saleDeliveryOnTripStatusList = data }, function (error) {
-            alert("error");
-          });
-       
- this.tripService.getSaleDeliveryRejectReasonList().subscribe(data => { this.tripService.saleDeliveryRejectReasonList = data }, function (error) {
-            alert("error");
-          });
+    this.tripService.getSaleDeliveryOnTripStatusList().subscribe(data => { this.tripService.saleDeliveryOnTripStatusList = data }, function (error) {
+      alert("error");
+    });
 
-    
+    this.tripService.getSaleDeliveryRejectReasonList().subscribe(data => { this.tripService.saleDeliveryRejectReasonList = data }, function (error) {
+      alert("error");
+    });
+
+
 
     this.tripService.getLocation().subscribe((position: GeolocationPosition) => {
       this.locationEnabled = true;
@@ -105,105 +107,104 @@ export class TripComponent implements OnInit, AfterViewChecked {
 
   }
 
-isTripStarted():boolean{
+  isTripStarted(): boolean {
 
-  if(this.tripService.record==null){
-    return false;}
-  // if(this.record==null){
-  //   return false;
-  // }
+    if (this.tripService.record == null) {
+      return false;
+    }
+    // if(this.record==null){
+    //   return false;
+    // }
 
-  //return this.record.TripEvent.filter(function(e:any){return e.EventID=='StartTrip'}).length>0;
-  return this.tripService.record.TripEvent.filter(function(e:any){return e.EventID=='StartTrip'}).length>0;
-}
+    //return this.record.TripEvent.filter(function(e:any){return e.EventID=='StartTrip'}).length>0;
+    return this.tripService.record.TripEvent.filter(function (e: any) { return e.EventID == 'StartTrip' }).length > 0;
+  }
 
-isTripclosed():boolean{
+  isTripclosed(): boolean {
     // if(this.record==null){
     //   return false;
     // }
     //return this.record.TripEvent.filter(function(e:any){return e.EventID=='FinishTrip'}).length>0;
 
-  if(this.tripService.record==null){
-    return false;
+    if (this.tripService.record == null) {
+      return false;
+    }
+
+    return this.tripService.record.TripEvent.filter(function (e: any) { return e.EventID == 'FinishTrip' }).length > 0;
+
   }
 
-  return this.tripService.record.TripEvent.filter(function(e:any){return e.EventID=='FinishTrip'}).length>0;
-
-}
 
 
 
 
+  public async takePicture(event: any) {
 
-public async takePicture(event: any) {
+    let target: HTMLInputElement = <HTMLInputElement>event.target;
+    let files: FileList = target.files;
 
-  let target: HTMLInputElement = <HTMLInputElement>event.target;
-  let files: FileList = target.files;
+    var ctx = (<HTMLCanvasElement>document.getElementById('canvaid')).getContext('2d');
+    var img = new Image;
+    img.src = URL.createObjectURL(target.files[0]);
+    var canva = (<HTMLCanvasElement>document.getElementById('canvaid'));
+    //ctx.scale(0.3,0.3);
 
-  var ctx = (<HTMLCanvasElement>document.getElementById('canvaid')).getContext('2d');
-  var img = new Image;
-  img.src = URL.createObjectURL(target.files[0]);
-  var canva = (<HTMLCanvasElement>document.getElementById('canvaid'));
-  //ctx.scale(0.3,0.3);
 
-  
-  img.onload = function () {
-    var size = 1000
-    const ratio = Math.min(size / img.width, size / img.height)
-    canva.width = img.width * ratio
-    canva.height = img.height * ratio
-    ctx.drawImage(img, 0, 0, img.width * ratio, img.height * ratio);
-  };
+    img.onload = function () {
+      var size = 1000
+      const ratio = Math.min(size / img.width, size / img.height)
+      canva.width = img.width * ratio
+      canva.height = img.height * ratio
+      ctx.drawImage(img, 0, 0, img.width * ratio, img.height * ratio);
+    };
 
-  var fileID= this.tripService.newGuid();
-  (await this.tripService.uploadFileToURL(files[0], fileID)).subscribe(
-    (res: any) => {
-      if (res.body) {
-        
-        var tripEvent: any = {};
-        tripEvent.Preview = res.body.Preview
-        tripEvent.FileID = res.body.FileID
-        // tripEvent.TripID = this.record.TripID
-        tripEvent.TripID = this.tripService.record.TripID
-        // tripEvent.SaleDeliveryID = this.selectedRow.SaleDeliveryID
-        tripEvent.SaleDeliveryID = null
-        // tripEvent.SourceID = this.selectedRow.SourceID
-        tripEvent.SourceID = null
-        tripEvent.EventID = "PictureInTrip"
+    var fileID = this.tripService.newGuid();
+    var tripEvent: any = {};
+    tripEvent.Preview = false;
+    tripEvent.FileID = fileID;
+    tripEvent.TripID = this.tripService.record.TripID;
+    tripEvent.SaleDeliveryID = null;
+    tripEvent.SourceID = null;
+    tripEvent.EventID = "PictureInTrip";
 
-        this.tripService.getLocation().subscribe((position: GeolocationPosition) => {
-          this.currentPositionUrl = this.tripService.getUrl(position);
-          this.changeDetectorRef.markForCheck();
-          tripEvent.Longitude = position.coords.longitude;
-          tripEvent.Latitude = position.coords.latitude;
-          //this.record.TripEvent.push(tripEvent);
-          this.tripService.addTripEvent(tripEvent);
-
-        }, (error: any) => {
-          this.tripService.addTripEvent(tripEvent);
-          alert('Error obteniendo ubicacion' + error)
-        });
-
-      }
-
-    },
-    (err: any) => {
-      alert(err);
-      this.tripService.uploadImagesList.push({
-      fileName: files[0].name,
-      fileID: fileID,
-      file: files[0],
-      status: 'Error'
-
+    this.tripService.getLocation().subscribe((position: GeolocationPosition) => {
+      this.currentPositionUrl = this.tripService.getUrl(position);
+      this.changeDetectorRef.markForCheck();
+      tripEvent.Longitude = position.coords.longitude;
+      tripEvent.Latitude = position.coords.latitude;
+      this.tripService.addTripEvent(tripEvent);
+     
+    }, (error: any) => {
+      this.tripService.addTripEvent(tripEvent);
+      alert('Error obteniendo ubicacion' + error)
     });
-    console.log(this.tripService.uploadImagesList);
-    }
-  );
+    console.log("Antes");
+    (await this.tripService.uploadFileToURL(files[0], fileID)).subscribe(
+      (res: any) => {
+        console.log("Ok");
+        if (res.body) {
+          tripEvent.Preview = res.body.Preview;
+          
+        }
 
+      },
+      (err: any) => {
+        console.log("error");
+        this.tripService.uploadImagesList.push({
+          fileName: files[0].name,
+          fileID: fileID,
+          file: files[0],
+          status: 'Error'
+          
+        });
+        console.log(this.tripService.uploadImagesList);
+      }
+    );
+console.log("Despues");
 
-}
+  }
 
-  setLocation(EventID: string, SaleDeliveryID:string, SourceID: string): void {
+  setLocation(EventID: string, SaleDeliveryID: string, SourceID: string): void {
     var tripEvent: any = {};
 
     tripEvent.TripID = this.tripService.record.TripID
@@ -212,7 +213,7 @@ public async takePicture(event: any) {
     tripEvent.SourceID = SourceID
     this.tripService.getLocation().subscribe((position: GeolocationPosition) => {
       this.mapVisible = true;
-     
+
       this.currentPositionUrl = this.tripService.getUrl(position);
       this.changeDetectorRef.markForCheck();
 
@@ -234,12 +235,12 @@ public async takePicture(event: any) {
 
   viewRecord(r: any): void {
     this.tripService.selectedRow = r
-    if(this.tripService.selectedRow.SaleDeliveryOnTripStatusID=='Assigned'){
+    if (this.tripService.selectedRow.SaleDeliveryOnTripStatusID == 'Assigned') {
 
       this.tripService.selectedRow.SaleDeliveryOnTripStatusID = undefined
       this.tripService.selectedRow.SaleDeliveryRejectReasonID = undefined
     }
-    
+
     this.router.navigate([this.location.pathname, r.SaleDeliveryID], {
       relativeTo: this.route,
     });
