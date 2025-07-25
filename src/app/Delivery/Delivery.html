@@ -1,5 +1,7 @@
-<div [hidden]="mapVisible">
+<div [hidden]="mapVisible" [ngStyle]="this.tripService.onlineStatus == 0 && {'border': '5px solid red'}"
+    *ngIf="tripService.selectedRow">
     <div class="row" style="padding: 0xp ; margin:0px ">
+
 
         <div style="margin-top: 10px;background-color: white;" class="row sticky-top">
             <button type="button" class="btn btn-primary col-3 col-sm-1"
@@ -9,26 +11,26 @@
                 <label for="txtTripNumber" tlt>
                     Viaje N°
                 </label>
-                <div class="form-control disabled">{{tripService.selectedRow.TripID}}</div>
+                <div class="form-control disabled">{{tripService.selectedRow?.TripID}}</div>
             </div>
         </div>
         <div class="col-6 col-sm-2 form-group">
             <label for="txtTripID" tlt>
                 Origen
             </label>
-            <div class="form-control disabled">{{tripService.selectedRow.SourceName}}</div>
+            <div class="form-control disabled">{{tripService.selectedRow?.SourceName}}</div>
         </div>
         <div class="col-6 col-sm-2 form-group">
             <label for="txtTripDate" tlt>
                 Envio
             </label>
-            <div class="form-control disabled">{{tripService.selectedRow.SaleDeliveryNumber}}</div>
+            <div class="form-control disabled">{{tripService.selectedRow?.SaleDeliveryNumber}}</div>
         </div>
         <div class="col-6 col-sm-2 form-group">
             <label for="txtTripStatusName" tlt>
                 Pedido
             </label>
-            <div class="form-control disabled">{{tripService.selectedRow.SaleOrderNumber}}</div>
+            <div class="form-control disabled">{{tripService.selectedRow?.SaleOrderNumber}}</div>
         </div>
 
 
@@ -36,43 +38,46 @@
             <label for="txtTripDate" tlt>
                 Unidades
             </label>
-            <div class="form-control disabled">{{tripService.selectedRow.Units | number:'1.2-2'}}</div>
+            <div class="form-control disabled">{{tripService.selectedRow?.Units | number:'1.2-2'}}</div>
         </div>
         <div class="col-6 col-sm-2 form-group">
             <label for="txtTripDate" tlt>
                 Kilos
             </label>
-            <div class="form-control disabled">{{tripService.selectedRow.Kilos | number:'1.2-2'}}</div>
+            <div class="form-control disabled">{{tripService.selectedRow?.Kilos | number:'1.2-2'}}</div>
         </div>
         <div class="col-6 col-sm-2 form-group">
             <label for="txtTripDate" tlt>
                 Metros
             </label>
-            <div class="form-control disabled">{{tripService.selectedRow.Meters | number:'1.2-2'}}</div>
+            <div class="form-control disabled">{{tripService.selectedRow?.Meters | number:'1.2-2'}}</div>
         </div>
 
         <div class="col-6 col-sm-2 form-group">
             <label for="txtTripTypeName" tlt>
                 Vendedor
             </label>
-            <div class="form-control disabled">{{tripService.selectedRow.SaleRepresentativeName}}</div>
+            <div class="form-control disabled">{{tripService.selectedRow?.SaleRepresentativeName}}</div>
         </div>
         <div class="col-6 col-sm-2 form-group">
             <label for="txtDeliveryZoneName" tlt>
                 Cliente
             </label>
-            <div class="form-control disabled">{{tripService.selectedRow.CustomerName}}</div>
+            <div class="form-control disabled">{{tripService.selectedRow?.CustomerName}}</div>
         </div>
         <div class="col-6 col-sm-4 form-group" *ngIf="tripService.record.TripTypeID =='Customer'">
             <label for="txtWarehouseGroupID" tlt>
                 Dirección
             </label>
             <div *ngIf="tripService.record.TripTypeID =='Customer'" class="form-control disabled">
-                <div [hidden]="!(tripService.record.TripTypeID =='Customer' && tripService.record.DeliveryZoneID !=='Expreso')">
-                    {{tripService.selectedRow.Address}} {{tripService.selectedRow.DistrictName}} ({{tripService.selectedRow.ZipCode}})
-                    {{tripService.selectedRow.StateName}}
+                <div
+                    [hidden]="!(tripService.record.TripTypeID =='Customer' && tripService.record.DeliveryZoneID !=='Expreso')">
+                    {{tripService.selectedRow?.Address}} {{tripService.selectedRow?.DistrictName}}
+                    ({{tripService.selectedRow?.ZipCode}})
+                    {{tripService.selectedRow?.StateName}}
                 </div>
-                <div [hidden]="!(tripService.record.TripTypeID =='Customer' && tripService.record.DeliveryZoneID ==='Expreso')">
+                <div
+                    [hidden]="!(tripService.record.TripTypeID =='Customer' && tripService.record.DeliveryZoneID ==='Expreso')">
                     <strong>{{tripService.selectedRow.CarrierName}}</strong><br />
                     {{tripService.selectedRow.CarrierAddress}} {{tripService.selectedRow.CarrierPhone}}
                 </div>
@@ -82,123 +87,134 @@
             <label for="txtFreightName" tlt>
                 Zona
             </label>
-            <div class="form-control disabled">{{tripService.selectedRow.DeliveryZoneName}}</div>
+            <div class="form-control disabled">{{tripService.selectedRow?.DeliveryZoneName}}</div>
         </div>
         <div class="col-12 form-group">
             <label for="txtVehicleTypeName" tlt>
                 Instrucciones de entrega
             </label>
-            <div class="form-control disabled">{{tripService.selectedRow.DeliveryInstruction}}</div>
+            <div class="form-control disabled">{{tripService.selectedRow?.DeliveryInstruction}}</div>
         </div>
-        <div class="col-6 col-sm-2 form-group">
-            <label for="txtWarehouseID" tlt>
-                Estado de entrega
-            </label>
+        <h2 [hidden]="!(!isTripStarted() && isTripclosed() || !isTripStarted() && !isTripclosed())">Viaje no en curso
+        </h2>
+        <div [hidden]="!isTripStarted() && isTripclosed() || !isTripStarted() && !isTripclosed()">
+            <div class="col-6 col-sm-2 form-group">
+                <label for="txtWarehouseID" tlt>
+                    Estado de entrega
+                </label>
 
-            <select [(ngModel)]="tripService.selectedRow.SaleDeliveryOnTripStatusID" class="form-select" autocomplete="off"
-                placeholder="Estado de entrega" name="txtSaleDeliveryOnTripStatusID"
-                [hidden]="!isTripStarted() && isTripclosed() || !isTripStarted() && !isTripclosed()">
-                <option [ngValue]=undefined selected tlt> - Seleccione -</option>
-                <option [value]="T.SaleDeliveryOnTripStatusID"
-                    *ngFor="let T of SaleDeliveryOnTripStatusList | filterValueByArray:'SaleDeliveryOnTripStatusID':['Delivered','Rejected','Observed','Returned']  | orderBy:'SaleDeliveryOnTripStatusName'">
-                    {{ T.SaleDeliveryOnTripStatusName }}
-                </option>
-            </select>
+                <select [(ngModel)]="tripService.selectedRow.SaleDeliveryOnTripStatusID" class="form-select"
+                    autocomplete="off" placeholder="Estado de entrega" name="txtSaleDeliveryOnTripStatusID">
+                    <option [ngValue]=undefined selected tlt> - Seleccione -</option>
+                    <option [value]="T.SaleDeliveryOnTripStatusID"
+                        *ngFor="let T of SaleDeliveryOnTripStatusList | filterValueByArray:'SaleDeliveryOnTripStatusID':['Delivered','Rejected','Observed','Returned']  | orderBy:'SaleDeliveryOnTripStatusName'">
+                        {{ T.SaleDeliveryOnTripStatusName }}
+                    </option>
+                </select>
 
-        </div>
-        <div class="col-sm-3 form-group" *ngIf="tripService.selectedRow.SaleDeliveryOnTripStatusID ==='Rejected'">
-            <label for="txtWarehouseID" tlt>
-                Motivo rechazo
-            </label>
+            </div>
+            <div class="col-sm-3 form-group" *ngIf="tripService.selectedRow.SaleDeliveryOnTripStatusID ==='Rejected'">
+                <label for="txtWarehouseID" tlt>
+                    Motivo rechazo
+                </label>
 
-            <select [(ngModel)]="tripService.selectedRow.SaleDeliveryRejectReasonID" class="form-select" autocomplete="off"
-                placeholder="Motivo rechazo" name="txtSaleDeliveryRejectReasonID">
-                <option [ngValue]=undefined selected tlt>- Seleccione -</option>
-                <option [value]="T.SaleDeliveryRejectReasonID"
-                    *ngFor="let T of SaleDeliveryRejectReasonList | orderBy:'SaleDeliveryRejectReasonName'">
-                    {{T.SaleDeliveryRejectReasonName }}
-                </option>
-            </select>
-        </div>
-
-        <div class="col-12 form-group">
-            <label for="txtDriverName" tlt>
-                Comentarios transportista
-            </label>
-            <textarea class="form-control" [(ngModel)]="tripService.selectedRow.SaleDeliveryOnTripRemarks"
-                placeholder="Comentarios Entrega"></textarea>
-        </div>
-    </div>
-    <div class="row" style="padding: 0xp ; margin:0px ; margin-top: 25px; margin-bottom: 25px;">
-
-        <div class="col-6 form-group">
-            <button type="button" class="btn btn-success" (click)="SaleDeliveryOnTripStatusChanged(tripService.selectedRow)">Grabar cambios</button>
-        </div>
-        <div class="col-6 form-group">
-            <label for="myFile" class="btn btn-success">
-                <i class="fas fa-upload"></i>&nbsp;&nbsp;<span tlt>Foto en destino</span>
-            </label>
-            <input class="btn btn-success col-6" type="file" id="myFile" name="filename" accept="image/*"
-                (change)="takePicture($event)" capture style="visibility: hidden;">
-        </div>
-
-    </div>
-    <div class="container">
-        <div class="row justify-content-center" id="map"
-            [hidden]="!isTripStarted() && isTripclosed() || !isTripStarted() && !isTripclosed()">
-            <div class="col-12 text-center">
-                <button type="button" class="btn btn-info col-6 col-md-4" (click)="setLocation('ArrivedToDestination')"
-                    *ngIf="!isDeliveryInDestination()">Llegada a destino</button>
-                <button type="button" class="btn btn-info col-6 col-md-4" (click)="setLocation('LeftFromDestination')"
-                    *ngIf="isDeliveryInDestination() && !isNotDeliveryInDestination()">Salida del destino</button>
+                <select [(ngModel)]="tripService.selectedRow.SaleDeliveryRejectReasonID" class="form-select"
+                    autocomplete="off" placeholder="Motivo rechazo" name="txtSaleDeliveryRejectReasonID">
+                    <option [ngValue]=undefined selected tlt>- Seleccione -</option>
+                    <option [value]="T.SaleDeliveryRejectReasonID"
+                        *ngFor="let T of SaleDeliveryRejectReasonList | orderBy:'SaleDeliveryRejectReasonName'">
+                        {{T.SaleDeliveryRejectReasonName }}
+                    </option>
+                </select>
             </div>
 
-            <canvas id="canvaid" [hidden]="!pictureVisible"
-            style="max-width: 1000px; max-height: 1000px; border: solid 1px blue;"></canvas>
+            <div class="col-12 form-group">
+                <label for="txtDriverName" tlt>
+                    Comentarios transportista
+                </label>
+                <textarea class="form-control" [(ngModel)]="tripService.selectedRow.SaleDeliveryOnTripRemarks"
+                    placeholder="Comentarios Entrega"></textarea>
+            </div>
 
-        </div>
-    </div>
-    <div class="table-responsive" [hidden]="mapVisible" style="padding-left: 12px; padding-right: 12px;">
-        <table class="table table-bordered  table-sm">
-            <thead class="table-dark">
-                <tr>
-                    <th tlt>Evento</th>
-                    <th tlt>Ubicación</th>
-                    <th tlt>Foto</th>
-                    <th tlt>Creado el</th>
+            <div class="row" style="padding: 0xp ; margin:0px ; margin-top: 25px; margin-bottom: 25px;">
 
-                </tr>
-            </thead>
-            <tbody>
-                <tr
-                    *ngFor="let r of tripService.record.TripEvent | filter:{'SaleDeliveryID':tripService.selectedRow.SaleDeliveryID} | orderBy:'-CreatedOn'; let index=index">
-                    <td>{{(tripService.eventList | filter:'EventID':r.EventID)[0].EventName}}</td>
-                    <td class="col-sm-1">
-                        <label for="Location" class="btn btn-dark">
-                            <i class="fa-solid fa-location-dot"></i>
-                        </label>
-                        <button class="btn btn-dark" id="Location" (click)="viewPosition(r)"
-                            style="visibility: hidden;"></button>
-                    </td>
-                    <td class="col-sm-2">
-                        <div>
-                            
-                            <a target="_blank" href="{{tripService.baseUrl}}Api/file/{{r.FileID}}"
-                                *ngIf="r.Preview===false">
-                                {{r.FileName}}
-                            </a>
-                            <a target="_blank" href="{{tripService.baseUrl}}Api/file/{{r.FileID}}"
-                                *ngIf="r.Preview===true">
-                                <img src="{{tripService.baseUrl}}Api/File/GetThumbnailFile/{{r.FileID}}"
-                                    *ngIf="r.Preview===true" />
-                            </a>
+                <div class="col-6 form-group">
+                    <button type="button" class="btn btn-success"
+                        (click)="SaleDeliveryOnTripStatusChanged(tripService.selectedRow)">Grabar cambios</button>
+                </div>
+                <div class="col-6 form-group">
+                    <label for="myFile" class="btn btn-success">
+                        <i class="fas fa-upload"></i>&nbsp;&nbsp;<span tlt>Foto en destino</span>
+                    </label>
+                    <input class="btn btn-success col-6" type="file" id="myFile" name="filename" accept="image/*"
+                        (change)="takePicture($event)" capture style="visibility: hidden;">
+                </div>
+
+
+                <div class="container">
+                    <div class="row justify-content-center" id="map"
+                        [hidden]="!isTripStarted() && isTripclosed() || !isTripStarted() && !isTripclosed()">
+                        <div class="col-12 text-center">
+                            <button type="button" class="btn btn-info col-6 col-md-4"
+                                (click)="setLocation('ArrivedToDestination', tripService.selectedRow.SaleDeliveryID, tripService.selectedRow.SourceID)"
+                                *ngIf="!isDeliveryInDestination()">Llegada
+                                a
+                                destino</button>
+                            <button type="button" class="btn btn-info col-6 col-md-4"
+                                (click)="setLocation('LeftFromDestination', tripService.selectedRow.SaleDeliveryID, tripService.selectedRow.SourceID)"
+                                *ngIf="isDeliveryInDestination() && !isNotDeliveryInDestination()">Salida del
+                                destino</button>
                         </div>
-                    </td>
-                    <td>{{r.CreatedOn | date:'dd/MM/yyyy HH:mm'}} </td>
-                </tr>
-            </tbody>
 
-        </table>
+                        <canvas id="canvaid" [hidden]="!pictureVisible"
+                            style="max-width: 1000px; max-height: 1000px; border: solid 1px blue;"></canvas>
+
+                    </div>
+                </div>
+                <div class="table-responsive" [hidden]="mapVisible" style="padding-left: 12px; padding-right: 12px;">
+                    <table class="table table-bordered  table-sm">
+                        <thead class="table-dark">
+                            <tr>
+                                <th tlt>Evento</th>
+                                <th tlt>Ubicación</th>
+                                <th tlt>Foto</th>
+                                <th tlt>Creado el</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                *ngFor="let r of tripService.record.TripEvent | filter:{'SaleDeliveryID':tripService.selectedRow.SaleDeliveryID} | orderBy:'-CreatedOn'; let index=index">
+                                <td>{{(tripService.eventList | filter:'EventID':r.EventID)[0].EventName}}</td>
+                                <td class="col-sm-1">
+                                    <label for="Location" class="btn btn-dark">
+                                        <i class="fa-solid fa-location-dot"></i>
+                                    </label>
+                                    <button class="btn btn-dark" id="Location" (click)="viewPosition(r)"
+                                        style="visibility: hidden;"></button>
+                                </td>
+                                <td class="col-sm-2">
+                                    <div>
+
+                                        <a target="_blank" href="{{tripService.baseUrl}}Api/file/{{r.FileID}}"
+                                            *ngIf="r.Preview===false">
+                                            {{r.FileName}}
+                                        </a>
+                                        <a target="_blank" href="{{tripService.baseUrl}}Api/file/{{r.FileID}}"
+                                            *ngIf="r.Preview===true">
+                                            <img src="{{tripService.baseUrl}}Api/File/GetThumbnailFile/{{r.FileID}}"
+                                                *ngIf="r.Preview===true" />
+                                        </a>
+                                    </div>
+                                </td>
+                                <td>{{r.CreatedOn | date:'dd/MM/yyyy HH:mm'}} </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <div>
@@ -209,4 +225,5 @@
             <button class="row btn btn-success" [hidden]="!mapVisible" (click)="closeMap()">Aceptar</button>
         </div>
     </div>
+
 </div>

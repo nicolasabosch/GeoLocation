@@ -1,7 +1,8 @@
 <div [hidden]="!locationEnabled">
     <div [hidden]="mapVisible">
 
-        <div class="container" *ngIf="tripService.record" [ngStyle]="this.tripService.onlineStatus == 0 && {'border': '1px solid red'}">
+        <div class="container" *ngIf="tripService.record"
+            [ngStyle]="this.tripService.onlineStatus == 0 && {'border': '5px solid red'}">
             <div *ngIf="!this.selectedRow">
                 <div class="row">
                     <div class="col-3 col-sm-2 form-group">
@@ -91,19 +92,22 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let r of tripService.record.TripSaleDelivery; let index=index" (click)="viewRecord(r)">
+                            <tr *ngFor="let r of tripService.record.TripSaleDelivery; let index=index"
+                                (click)="viewRecord(r)">
                                 <td>{{r.SourceName}} </td>
                                 <td style="text-align:right; font-weight:bold">{{r.SaleDeliveryNumber}} </td>
                                 <td>{{r.CustomerName}} </td>
                                 <td>{{r.SaleDeliveryOnTripStatusName}}</td>
                             </tr>
-                            <tr *ngFor="let r of tripService.record.TripWithdrawalOrder; let j=index" (click)="viewRecord(r)">
+                            <tr *ngFor="let r of tripService.record.TripWithdrawalOrder; let j=index"
+                                (click)="viewRecord(r)">
                                 <td>{{r.SourceName}} </td>
                                 <td style="text-align:right; font-weight:bold">{{r.SaleDeliveryNumber}} </td>
                                 <td>{{r.CustomerName}} </td>
                                 <td>{{r.SaleDeliveryOnTripStatusName}}</td>
                             </tr>
-                            <tr *ngFor="let r of tripService.record.TripSaleRetail; let h=index" (click)="viewRecord(r)">
+                            <tr *ngFor="let r of tripService.record.TripSaleRetail; let h=index"
+                                (click)="viewRecord(r)">
                                 <td>{{r.SourceName}} </td>
                                 <td style="text-align:right; font-weight:bold">{{r.SaleDeliveryNumber}} </td>
                                 <td>{{r.CustomerName}} </td>
@@ -168,11 +172,13 @@
                             Dirección
                         </label>
                         <div *ngIf="tripService.record.TripTypeID =='Customer'" class="form-control disabled">
-                            <div [hidden]="!(tripService.record.TripTypeID =='Customer' && tripService.record.DeliveryZoneID !=='Expreso')">
+                            <div
+                                [hidden]="!(tripService.record.TripTypeID =='Customer' && tripService.record.DeliveryZoneID !=='Expreso')">
                                 {{selectedRow.Address}} {{selectedRow.DistrictName}} ({{selectedRow.ZipCode}})
                                 {{selectedRow.StateName}}
                             </div>
-                            <div [hidden]="!(tripService.record.TripTypeID =='Customer' && tripService.record.DeliveryZoneID ==='Expreso')">
+                            <div
+                                [hidden]="!(tripService.record.TripTypeID =='Customer' && tripService.record.DeliveryZoneID ==='Expreso')">
                                 <strong>{{selectedRow.CarrierName}}</strong><br />
                                 {{selectedRow.CarrierAddress}} {{selectedRow.CarrierPhone}}
                             </div>
@@ -227,7 +233,7 @@
                 </div> -->
             </div>
             <!-- <pre>{{record | json}}</pre> -->
-            <div class="table-responsive mt-3">
+            <div class="table-responsive mt-3" *ngIf="tripService.eventList">
                 <table class="table table-bordered  table-sm">
                     <thead class="table-dark">
                         <tr>
@@ -283,4 +289,6 @@
 
 </div>
 
-<pre>{{this.tripService.record?.TripEvent | json}}</pre>
+<!-- 
+
+-->
