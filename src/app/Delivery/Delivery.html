@@ -1,3 +1,4 @@
+<pre>{{tripService.selectedRow | json}}</pre>
 <div [hidden]="mapVisible" [ngStyle]="this.tripService.onlineStatus == 0 && {'border': '5px solid red'}"
     *ngIf="tripService.selectedRow">
     <div class="row" style="padding: 0xp ; margin:0px ">
@@ -140,14 +141,16 @@
 
                 <div class="col-6 form-group">
                     <button type="button" class="btn btn-success"
-                        (click)="SaleDeliveryOnTripStatusChanged(tripService.selectedRow)">Grabar cambios</button>
+                        (click)="this.tripService.SaleDeliveryOnTripStatusChanged(tripService.selectedRow)">Grabar
+                        cambios</button>
                 </div>
                 <div class="col-6 form-group">
                     <label for="myFile" class="btn btn-success">
                         <i class="fas fa-upload"></i>&nbsp;&nbsp;<span tlt>Foto en destino</span>
                     </label>
                     <input class="btn btn-success col-6" type="file" id="myFile" name="filename" accept="image/*"
-                        (change)="takePicture($event)" capture style="visibility: hidden;">
+                        (change)="this.tripService.takePicture($event, tripService.selectedRow.SaleDeliveryID, tripService.selectedRow.SourceID, 'PictureInDestination')"
+                        capture style="visibility: hidden;">
                 </div>
 
 
@@ -156,12 +159,12 @@
                         [hidden]="!isTripStarted() && isTripclosed() || !isTripStarted() && !isTripclosed()">
                         <div class="col-12 text-center">
                             <button type="button" class="btn btn-info col-6 col-md-4"
-                                (click)="setLocation('ArrivedToDestination', tripService.selectedRow.SaleDeliveryID, tripService.selectedRow.SourceID)"
+                                (click)="this.tripService.setLocation('ArrivedToDestination', tripService.selectedRow.SaleDeliveryID, tripService.selectedRow.SourceID)"
                                 *ngIf="!isDeliveryInDestination()">Llegada
                                 a
                                 destino</button>
                             <button type="button" class="btn btn-info col-6 col-md-4"
-                                (click)="setLocation('LeftFromDestination', tripService.selectedRow.SaleDeliveryID, tripService.selectedRow.SourceID)"
+                                (click)="this.tripService.setLocation('LeftFromDestination', tripService.selectedRow.SaleDeliveryID, tripService.selectedRow.SourceID)"
                                 *ngIf="isDeliveryInDestination() && !isNotDeliveryInDestination()">Salida del
                                 destino</button>
                         </div>

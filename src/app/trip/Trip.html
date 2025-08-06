@@ -72,7 +72,8 @@
 
                 <div>
                     <input class="btn btn-success" type="file" id="myFile" name="filename" accept="image/*"
-                        (change)="takePicture($event)" capture style="visibility: hidden;">
+                        (change)="this.tripService.takePicture($event, null, tripService.selectedRow.SourceID, 'PictureInTrip')"
+                        capture style="visibility: hidden;">
 
                     <canvas id="canvaid" [hidden]="!pictureVisible"
                         style="max-width: 1000px; max-height: 1000px; border: solid 1px blue;"></canvas>
@@ -80,6 +81,10 @@
 
                 <h1>Eventos pendientes {{(this.tripService.record?.TripEvent | filter: {status: 'Error'}).length}}</h1>
                 <h1>Imagenes pendientes {{this.tripService.uploadImagesList.length}}</h1>
+                <h1>Eventos pendientes {{this.tripService.pendingSelectedRow.length}}</h1>
+                <h1>Total pendiente {{this.tripService.pendingSelectedRow.length +
+                    (this.tripService.record?.TripEvent | filter: {status: 'Error'}).length +
+                    this.tripService.uploadImagesList.length}}</h1>
 
                 <div class="table-responsive">
                     <table class="table table-bordered  table-sm">
@@ -126,10 +131,11 @@
                     </label>
                 </div>
                 <div class=" col-5">
-                    <button *ngIf="!isTripStarted()" (click)="setLocation('StartTrip',null,null)"
+                    <button *ngIf="!isTripStarted()" (click)="this.tripService.setLocation('StartTrip',null,null)"
                         class="btn btn-primary">Comenzar viaje</button>
-                    <button *ngIf="isTripStarted() && !isTripclosed()" (click)="setLocation('FinishTrip',null,null)"
-                        class="btn btn-danger">Finalizar el viaje</button>
+                    <button *ngIf="isTripStarted() && !isTripclosed()"
+                        (click)="this.tripService.setLocation('FinishTrip',null,null)" class="btn btn-danger">Finalizar
+                        el viaje</button>
 
                 </div>
             </div>
@@ -216,23 +222,8 @@
                         {{selectedRow.SaleDeliveryOnTripRemarks}}</textarea>
                     </div>
                 </div>
-                <!-- <div style="width: 100%;" id="map">
 
-                    <pre *ngIf="record?.coords"></pre>
-                    <label for="myFile" class="btn btn-success">
-                        <i class="fas fa-upload"></i>&nbsp;&nbsp;<span tlt>Subir Archivo</span>
-                    </label>
-
-
-                    <input class="btn btn-success" type="file" id="myFile" name="filename" accept="image/*"
-                        (change)="uploadFile($event,record,'FileID')" capture>
-
-                    <canvas id="canvaid"
-                        style="max-width: 1000px; max-height: 1000px; border: solid 1px blue;"></canvas>
-
-                </div> -->
             </div>
-            <!-- <pre>{{record | json}}</pre> -->
             <div class="table-responsive mt-3" *ngIf="tripService.eventList">
                 <table class="table table-bordered  table-sm">
                     <thead class="table-dark">
