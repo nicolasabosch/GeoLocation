@@ -72,7 +72,7 @@ export class TripService {
           this.baseUrl = environment.webAPIUrl;
           this.toastr.success('Volviste a estar en linea', 'En linea');
 
-          await this.processError();
+          //await this.processError();
 
 
 

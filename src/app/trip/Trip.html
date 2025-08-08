@@ -79,12 +79,16 @@
                         style="max-width: 1000px; max-height: 1000px; border: solid 1px blue;"></canvas>
                 </div>
 
-                <h1>Eventos pendientes {{(this.tripService.record?.TripEvent | filter: {status: 'Error'}).length}}</h1>
+                <!-- <h1>Eventos pendientes {{(this.tripService.record?.TripEvent | filter: {status: 'Error'}).length}}</h1>
                 <h1>Imagenes pendientes {{this.tripService.uploadImagesList.length}}</h1>
-                <h1>Eventos pendientes {{this.tripService.pendingSelectedRow.length}}</h1>
+                <h1>Eventos pendientes {{this.tripService.pendingSelectedRow.length}}</h1> -->
                 <h1>Total pendiente {{this.tripService.pendingSelectedRow.length +
                     (this.tripService.record?.TripEvent | filter: {status: 'Error'}).length +
                     this.tripService.uploadImagesList.length}}</h1>
+
+                <button class="btn btn-primary mb-2" (click)="this.tripService.processError()" [hidden]="(this.tripService.onlineStatus == 0) ||((this.tripService.pendingSelectedRow.length +
+                    (this.tripService.record?.TripEvent | filter: {status: 'Error'}).length +
+                    this.tripService.uploadImagesList.length)) == 0">Procesar errores</button>
 
                 <div class="table-responsive">
                     <table class="table table-bordered  table-sm">
