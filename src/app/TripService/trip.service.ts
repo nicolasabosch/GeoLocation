@@ -2,7 +2,7 @@ import { HttpClient, HttpEventType, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { SafeResourceUrl, DomSanitizer } from '@angular/platform-browser';
 import { GeolocationService } from '@ng-web-apis/geolocation';
-import { filter, firstValueFrom, Observable, take, tap, throwError } from 'rxjs';
+import { filter, firstValueFrom, Observable, take, tap, throwError, timeout } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { OnlineStatusService, OnlineStatusType } from './online-status.service';
 import { formatDate } from '@angular/common';
@@ -18,7 +18,6 @@ export class TripService {
   eventList: any = null;
   saleDeliveryOnTripStatusList: any = [];
   saleDeliveryRejectReasonList: any = [];
-  SaleDeliveryOnTripStatusList: any = [];
   uploadImagesList: any = [];
   TripEventList: any = [];
   onlineStatus: OnlineStatusType = OnlineStatusType.OFFLINE;
@@ -50,7 +49,7 @@ export class TripService {
     );
 
     this.getSaleDeliveryOnTripStatusList().subscribe((data) => {
-      this.SaleDeliveryOnTripStatusList = data;
+      this.saleDeliveryOnTripStatusList = data;
     },
       function (error) {
         alert('error');
@@ -61,7 +60,6 @@ export class TripService {
 
     this.onlineStatusService.status.subscribe(
       async (status: OnlineStatusType) => {
-        console.log('Online status changed:', status);
 
         if (status === OnlineStatusType.ONLINE) {
           this.onlineStatus = OnlineStatusType.ONLINE;
@@ -71,10 +69,6 @@ export class TripService {
         if (this.onlineStatus === OnlineStatusType.ONLINE) {
           this.baseUrl = environment.webAPIUrl;
           this.toastr.success('Volviste a estar en linea', 'En linea');
-
-          //await this.processError();
-
-
 
         } else {
           this.toastr.error('Perdiste la conexión a internet', 'Sin conexión');
@@ -95,19 +89,19 @@ export class TripService {
         this.http.put(this.baseUrl + 'Api/Trip', selectedRow)
           .subscribe(
             (data: any) => {
-              console.log(data);
               selectedRow.SaleDeliveryOnTripStatusID = data.SaleDeliveryOnTripStatusID;
               selectedRow.SaleDeliveryOnTripRemarks = data.SaleDeliveryOnTripRemarks;
               selectedRow.SaleDeliveryRejectReasonID = data.SaleDeliveryRejectReasonID;
               selectedRow.status = "Completed";
             },
             (err: any) => {
-              console.error(err);
             }
           );
 
       }
     );
+    this.pendingSelectedRow = this.pendingSelectedRow.filter((e: any) => e.status != "Error");
+
 
     if (this.uploadImagesList.length > 0) {
       for (let i = this.uploadImagesList.length - 1; i >= 0; i--) {
@@ -119,10 +113,13 @@ export class TripService {
               row.fileID
             );
             if (response.type === HttpEventType.Response && response.body) {
+              const te = this.record?.TripEvent?.find((e: any) => e.FileID === row.fileID);
+              if (te) {
+                te.Preview = response.body?.Preview ?? true;
+              }
               this.uploadImagesList.splice(i, 1);
 
               // Aquí puedes trabajar con la respuesta
-              console.log(response);
             }
           } catch (error) {
             // Aquí manejas el error
@@ -149,7 +146,6 @@ export class TripService {
                 tripEvent.status = 'Ok';
               },
               (err: any) => {
-                console.error(err);
                 tripEvent.status = 'Error';
               }
             );
@@ -199,6 +195,15 @@ export class TripService {
 
   async SaleDeliveryOnTripStatusChanged(selectedRow: any): Promise<void> {
 
+
+    if (this.onlineStatus == OnlineStatusType.OFFLINE) {
+      this.baseUrl = '';
+    }
+
+    if (this.onlineStatus == OnlineStatusType.ONLINE && this.baseUrl == '') {
+      this.baseUrl = environment.webAPIUrl;
+    }
+
     await this.http.put(this.baseUrl + 'Api/Trip', selectedRow)
       .subscribe(
         (data: any) => {
@@ -212,18 +217,17 @@ export class TripService {
           this.record.TripSaleDelivery.filter(
             (e: any) => e.SaleDeliveryID == selectedRow.SaleDeliveryID
           )[0].SaleDeliveryOnTripStatusName =
-            this.SaleDeliveryOnTripStatusList.find(
+            this.saleDeliveryOnTripStatusList.find(
               (e: any) =>
                 e.SaleDeliveryOnTripStatusID ==
                 selectedRow.SaleDeliveryOnTripStatusID
             ).SaleDeliveryOnTripStatusName;
         },
         (err: any) => {
-          console.log(err);
+          selectedRow.status = "Error";
           if (this.pendingSelectedRow.length > 0) {
             let found = false;
             let currentSaleDeliveryID = selectedRow.SaleDeliveryID
-            selectedRow.status = "Error";
             for (var i = this.pendingSelectedRow.length - 1; i >= 0; i--) {
               if (this.pendingSelectedRow[i].SaleDeliveryID == currentSaleDeliveryID) {
                 this.pendingSelectedRow.splice(i, 1);
@@ -297,12 +301,26 @@ export class TripService {
     tripEvent.SourceID = SourceID;
     tripEvent.EventID = EventID;
 
+    
+    try {
+      const posicion = await this.getLocationAsync();
+        //this.currentPositionUrl = this.getUrl(posicion);
+        // this.changeDetectorRef.markForCheck();
+        tripEvent.Longitude = posicion.coords.longitude;
+        tripEvent.Latitude = posicion.coords.latitude;
+      
+    } catch (error) {
+      tripEvent.Longitude = 0;
+      tripEvent.Latitude = 0;
+      
+    }
+    
     try {
       var response = await this.uploadFileToURL(files[0], fileID);
       if (response.type === HttpEventType.Response && response.body) {
         tripEvent.Preview = response.body.Preview;
+        
         // Aquí puedes trabajar con la respuesta
-        console.log(response);
       }
     } catch (error) {
       this.uploadImagesList.push({
@@ -312,24 +330,9 @@ export class TripService {
         status: 'Error'
 
       });
-      tripEvent.status = 'Error';
-      console.log(this.uploadImagesList);
+      // tripEvent.status = 'Error';
       // Aquí manejas el error
       console.error('Error al subir el archivo:', error);
-    }
-
-    try {
-      const posicion = await this.getLocationAsync();
-      this.currentPositionUrl = this.getUrl(posicion);
-      // this.changeDetectorRef.markForCheck();
-      tripEvent.Longitude = posicion.coords.longitude;
-      tripEvent.Latitude = posicion.coords.latitude;
-
-      console.log(posicion);
-    } catch (error) {
-      console.error('Error obteniendo la posición', error);
-
-      alert('Error obteniendo ubicacion' + error);
     }
 
     this.addTripEvent(tripEvent);
@@ -347,7 +350,6 @@ export class TripService {
     var tripEvent: any = {};
 
     tripEvent.TripID = this.record.TripID;
-    //tripEvent.TripID = this.record.TripID
     tripEvent.SaleDeliveryID = SaleDeliveryID;
     tripEvent.SourceID = SourceID;
     tripEvent.EventID = EventID;
@@ -361,16 +363,13 @@ export class TripService {
       this.mapVisible = true;
       tripEvent.Preview = false;
 
-
-      console.log(posicion);
     } catch (error) {
       console.error('Error obteniendo la posición', error);
-      tripEvent.status = 'Error';
+      tripEvent.Longitude = 0;
+      tripEvent.Latitude = 0;
     }
     this.addTripEvent(tripEvent);
-
   }
-
 
   async ImageResizeAsync(file: any) {
     var size = 1000;
@@ -413,12 +412,17 @@ export class TripService {
   }
 
   async getLocationAsync(): Promise<any> {
-    return await firstValueFrom(this.geolocation$.pipe(take(1)));
+    return await firstValueFrom(
+      this.geolocation$.pipe(
+        take(1),
+        // Agregar timeout de 5 segundos
+        timeout(2000)
+      )
+    );
   }
 
   public handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
-      console.error(error);
       return throwError(
         () => new Error('Something bad happened; please try again later.')
       );
@@ -437,7 +441,6 @@ export class TripService {
           this.record.TripEvent.push(tripEvent);
         },
         (err: any) => {
-          console.error(err);
           tripEvent.status = 'Error';
           this.record.TripEvent.push(tripEvent);
         }

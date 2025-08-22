@@ -3,9 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DatePipe, NgFor, NgIf, PlatformLocation } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SafeResourceUrl } from '@angular/platform-browser';
-
 import { CommonModule } from '@angular/common';
-
 import { Observable, throwError } from 'rxjs';
 import { TripService } from '../TripService/trip.service';
 import { FilterPipe } from '../pipes/filter.pipe';
@@ -96,7 +94,6 @@ export class TripComponent implements OnInit, AfterViewChecked {
       this.locationEnabled = false;
       alert('Debe tener habilitado el acceso a la ubicación en el navegador');
     }
-
 
   }
 

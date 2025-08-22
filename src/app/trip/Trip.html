@@ -79,14 +79,12 @@
                         style="max-width: 1000px; max-height: 1000px; border: solid 1px blue;"></canvas>
                 </div>
 
-                <!-- <h1>Eventos pendientes {{(this.tripService.record?.TripEvent | filter: {status: 'Error'}).length}}</h1>
-                <h1>Imagenes pendientes {{this.tripService.uploadImagesList.length}}</h1>
-                <h1>Eventos pendientes {{this.tripService.pendingSelectedRow.length}}</h1> -->
+
                 <h1>Total pendiente {{this.tripService.pendingSelectedRow.length +
                     (this.tripService.record?.TripEvent | filter: {status: 'Error'}).length +
                     this.tripService.uploadImagesList.length}}</h1>
 
-                <button class="btn btn-primary mb-2" (click)="this.tripService.processError()" [hidden]="(this.tripService.onlineStatus == 0) ||((this.tripService.pendingSelectedRow.length +
+                <button class="btn btn-primary mb-2" (click)="this.tripService.processError()" [hidden]="(this.tripService.onlineStatus == 0) ||(((this.tripService.pendingSelectedRow | filter: {status: 'Error'}).length +
                     (this.tripService.record?.TripEvent | filter: {status: 'Error'}).length +
                     this.tripService.uploadImagesList.length)) == 0">Procesar errores</button>
 
@@ -138,8 +136,7 @@
                     <button *ngIf="!isTripStarted()" (click)="this.tripService.setLocation('StartTrip',null,null)"
                         class="btn btn-primary">Comenzar viaje</button>
                     <button *ngIf="isTripStarted() && !isTripclosed()"
-                        (click)="this.tripService.setLocation('FinishTrip',null,null)" class="btn btn-danger">Finalizar
-                        el viaje</button>
+                        (click)="this.tripService.setLocation('FinishTrip',null,null)" class="btn btn-danger">Finalizar el viaje</button>
 
                 </div>
             </div>
@@ -252,15 +249,15 @@
 
                             <td class="col-sm-2">
                                 <div>
-                                    <a target="_blank" href="{{tripService.baseUrl}}Api/file/{{r.FileID}}"
-                                        *ngIf="r.Preview===false">
-                                        {{r.FileName}}
-                                    </a>
-                                    <a target="_blank" href="{{tripService.baseUrl}}Api/file/{{r.FileID}}"
-                                        *ngIf="r.Preview===true">
-                                        <img src="{{tripService.baseUrl}}Api/File/GetThumbnailFile/{{r.FileID}}"
-                                            *ngIf="r.Preview===true" />
-                                    </a>
+                                <a target="_blank" href="{{tripService.baseUrl}}Api/file/{{r.FileID}}"
+                                *ngIf="r.Preview===false">
+                                {{r.FileName}}
+                            </a>
+                                <a target="_blank" href="{{tripService.baseUrl}}Api/file/{{r.FileID}}"
+                                    *ngIf="r.Preview===true">
+                                    <img [src]="tripService.baseUrl + 'Api/file/GetThumbnailFile/' + r.FileID + '?v=' + (r.CreatedOn || '')"
+                                        *ngIf="r.Preview===true" />
+                                </a>
                                 </div>
                             </td>
                             <td>{{r.CreatedOn | date:'dd/MM/yyyy HH:mm'}} </td>

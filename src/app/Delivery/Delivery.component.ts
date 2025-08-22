@@ -46,8 +46,8 @@ export class DeliveryComponent implements AfterContentInit {
   pictureVisible: boolean = false;
   search: any = {};
   eventList: any = [];
-  SaleDeliveryOnTripStatusList: any = [];
-  SaleDeliveryRejectReasonList: any = [];
+  // SaleDeliveryOnTripStatusList: any = [];
+  // SaleDeliveryRejectReasonList: any = [];
   pendingSelectedRow: any = null;
   constructor(
     private readonly changeDetectorRef: ChangeDetectorRef,
@@ -58,17 +58,17 @@ export class DeliveryComponent implements AfterContentInit {
 
   ngOnInit(): void {
 
-    this.tripService.getSaleDeliveryOnTripStatusList().subscribe((data) => {
-      this.SaleDeliveryOnTripStatusList = data;
-    });
+    // this.tripService.getSaleDeliveryOnTripStatusList().subscribe((data) => {
+    //   this.SaleDeliveryOnTripStatusList = data;
+    // });
 
-    this.tripService.getSaleDeliveryRejectReasonList().subscribe((data) => {
-      this.SaleDeliveryRejectReasonList = data;
-    });
+    // this.tripService.getSaleDeliveryRejectReasonList().subscribe((data) => {
+    //   this.SaleDeliveryRejectReasonList = data;
+    // });
 
-    this.tripService.getEventList().subscribe((data) => {
-      this.eventList = data;
-    });
+    // this.tripService.getEventList().subscribe((data) => {
+    //   this.eventList = data;
+    // });
   }
 
   viewPosition(r: any): void {
@@ -138,35 +138,7 @@ export class DeliveryComponent implements AfterContentInit {
     );
   }
 
-  /* SaleDeliveryOnTripStatusChanged(selectedRow: any): void {
-    try {
-      this.tripService.http.put(this.tripService.baseUrl + 'Api/Trip', selectedRow)
-        .subscribe(
-          (data: any) => {
-            this.toastr.success('Guardado', 'Bien', {
-              positionClass: 'toast-top-right',
-            });
-            this.tripService.record.TripSaleDelivery.filter(
-              (e: any) => e.SaleDeliveryID == selectedRow.SaleDeliveryID
-            )[0].SaleDeliveryOnTripStatusID =
-              selectedRow.SaleDeliveryOnTripStatusID;
-            this.tripService.record.TripSaleDelivery.filter(
-              (e: any) => e.SaleDeliveryID == selectedRow.SaleDeliveryID
-            )[0].SaleDeliveryOnTripStatusName =
-              this.SaleDeliveryOnTripStatusList.find(
-                (e: any) =>
-                  e.SaleDeliveryOnTripStatusID ==
-                  selectedRow.SaleDeliveryOnTripStatusID
-              ).SaleDeliveryOnTripStatusName;
-          },
-          (err: any) => console.log(err)
-        );
-    } catch (error) {
-      console.error('Error updating delivery status:', error);
-      this.pendingSelectedRow = selectedRow;
-    }
-  } */
-
+  
   ngAfterContentInit(): void {
 
   }
