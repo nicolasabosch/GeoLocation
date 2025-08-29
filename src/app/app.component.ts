@@ -8,12 +8,13 @@ import { FormsModule } from '@angular/forms';
 import { ToastrService, ToastrModule } from 'ngx-toastr';
 import { environment } from '../environments/environment';
 import { TripService } from './TripService/trip.service';
+import { LoaderComponent } from './loader/loader.component';
 
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, LoaderComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

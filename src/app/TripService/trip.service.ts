@@ -7,9 +7,11 @@ import { environment } from '../../environments/environment';
 import { OnlineStatusService, OnlineStatusType } from './online-status.service';
 import { formatDate } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
+import { LoaderInterceptor } from '../loader/loader-interceptor.service';
 
 @Injectable({
   providedIn: 'root',
+  deps: [LoaderInterceptor],
 })
 export class TripService {
   selectedRow: any = {};
